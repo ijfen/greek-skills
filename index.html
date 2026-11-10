@@ -1,0 +1,720 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>Ancient Greek Knowledge Graph</title></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Gentium+Plus:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one-screen map. Top bar, pannable skill tree filling the screen, a reading panel on the right (bottom sheet on phones). */
+:root{
+  --bg:#faf8f2;          /* laid paper */
+  --card:#fffdf8;
+  --surface:#f1ece0;
+  --surface-2:#e9e3d4;
+  --fg:#211e18;          /* ink */
+  --muted:#6c6557;
+  --accent:#2b4a6f;      /* lapis */
+  --border:#ddd6c5;
+  --rule:#cfc7b3;
+  --edge:#b9b09c;
+  --edge-hi:#211e18;
+  --on-strand:#ffffff;
+  --shadow:0 1px 2px rgba(60,50,30,.08),0 6px 20px rgba(60,50,30,.08);
+  --sA:#2f5d9a; --sB:#6b4fa0; --sC:#23806f; --sD:#b2452c; --sE:#8f6a12; --sF:#4d7c2a;
+  --sG:#1b6f96; --sH:#9b3a70; --sI:#75573a; --sJ:#c0661a; --sK:#55606e;
+  --f-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --f-body:'Gentium Plus','Gentium',Georgia,'Times New Roman',serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17150f; --card:#201d15; --surface:#25221a; --surface-2:#2e2a1f;
+  --fg:#ece6d7; --muted:#a69f8d; --accent:#9cc0e6; --border:#38331f; --rule:#4a4330;
+  --edge:#5a5240; --edge-hi:#f3ecdc; --on-strand:#15130e;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  --sA:#8fb4e8; --sB:#b9a2e6; --sC:#6fcdb8; --sD:#ee9a83; --sE:#e0bd62; --sF:#a2d07a;
+  --sG:#74c0e4; --sH:#e690c0; --sI:#cfab88; --sJ:#f2a865; --sK:#aab4c2;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#17150f; --card:#201d15; --surface:#25221a; --surface-2:#2e2a1f;
+  --fg:#ece6d7; --muted:#a69f8d; --accent:#9cc0e6; --border:#38331f; --rule:#4a4330;
+  --edge:#5a5240; --edge-hi:#f3ecdc; --on-strand:#15130e;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  --sA:#8fb4e8; --sB:#b9a2e6; --sC:#6fcdb8; --sD:#ee9a83; --sE:#e0bd62; --sF:#a2d07a;
+  --sG:#74c0e4; --sH:#e690c0; --sI:#cfab88; --sJ:#f2a865; --sK:#aab4c2;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;overflow:hidden}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;grid-template-columns:1fr 360px}
+.top{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg);flex-wrap:wrap;position:relative;z-index:5}
+.brand{display:flex;flex-direction:column;min-width:0;margin-right:auto}
+.brand .eyebrow{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:600;font-size:21px;line-height:1.15;letter-spacing:-.01em;text-wrap:balance}
+.brand h1 span{font-family:var(--f-body);font-weight:400;font-style:italic;color:var(--muted);font-size:17px}
+.prog{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
+.prog b{color:var(--fg);font-family:var(--f-display);font-size:18px;font-weight:600}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.search{position:relative}
+.search input{width:220px;padding:7px 10px 7px 30px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);font:inherit;font-size:14px}
+.search svg{position:absolute;left:9px;top:50%;translate:0 -50%;width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2}
+.search .count{position:absolute;right:9px;top:50%;translate:0 -50%;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.tbtn{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:14px;white-space:nowrap}
+.tbtn:hover{border-color:var(--rule);background:var(--surface)}
+
+/* Map */
+.map{position:relative;overflow:hidden;touch-action:none;cursor:grab;background:
+  radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--rule) 55%,transparent) 1px,transparent 0) 0 0/22px 22px,var(--bg);min-width:0}
+.map.dragging{cursor:grabbing}
+.world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.world.anim{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.edges path{fill:none;stroke:var(--edge);stroke-width:1.4;transition:stroke .2s,opacity .2s,stroke-width .2s}
+.edges path.done{stroke:color-mix(in srgb,var(--fg) 55%,var(--edge))}
+.focus .edges path{opacity:.16}
+.focus .edges path.up{opacity:1;stroke:var(--edge-hi);stroke-width:2.4}
+.focus .edges path.down{opacity:.9;stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4}
+
+.node{position:absolute;width:156px;height:50px;margin:-25px 0 0 -78px;border-radius:25px;padding:4px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:var(--card);border:1.5px solid color-mix(in srgb,var(--c) 38%,var(--rule));cursor:pointer;text-align:center;
+  transition:background .2s,border-color .2s,opacity .2s,box-shadow .2s,transform .15s}
+.node .nid{font-family:var(--f-mono);font-weight:700;font-size:10px;letter-spacing:.06em;color:var(--c);line-height:1}
+.node .nt{font-size:13px;line-height:1.12;color:var(--fg);max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.node:hover{transform:scale(1.05);box-shadow:var(--shadow);z-index:2}
+.node.ready{border:2px solid var(--c);background:color-mix(in srgb,var(--c) 10%,var(--card));box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 14%,transparent)}
+.node.mastered{background:var(--c);border-color:var(--c)}
+.node.mastered .nid,.node.mastered .nt{color:var(--on-strand)}
+.node.mastered .nid::after{content:" ✓"}
+.node.sel{outline:3px solid var(--fg);outline-offset:3px;z-index:3}
+.focus .node{opacity:.4}
+.focus .node.lit{opacity:1}
+.node.pop{animation:pop .35s ease}
+@keyframes pop{40%{transform:scale(1.14)}}
+.strandmap{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;opacity:var(--so,0);transition:opacity .25s}
+.strandmap line{stroke:var(--muted);stroke-opacity:.6;stroke-width:2.5;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.strandmap marker path{fill:var(--muted);fill-opacity:.7}
+.strandmap text{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;fill-opacity:.7;stroke:var(--bg);stroke-opacity:.85;paint-order:stroke;stroke-linejoin:round;text-anchor:middle}
+.strandmap .sl{font-family:var(--f-mono);font-weight:700;letter-spacing:.12em;fill-opacity:.55}
+.far .edges{opacity:.55}
+.far #nodes{opacity:.8}
+.far .node .nt{display:none}
+.far .node .nid{font-size:22px}
+.far .node.mastered .nid::after{content:""}
+
+.mapctl{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:4}
+.mapctl button{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--card);box-shadow:var(--shadow);cursor:pointer;font-size:18px;line-height:1;display:grid;place-items:center}
+.mapctl button:hover{background:var(--surface)}
+.hint{position:absolute;left:14px;bottom:14px;z-index:4;font-size:12.5px;color:var(--muted);background:color-mix(in srgb,var(--bg) 88%,transparent);padding:6px 10px;border-radius:8px;border:1px solid var(--border);max-width:calc(100% - 90px)}
+.key{position:absolute;left:14px;top:12px;z-index:4;display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);background:color-mix(in srgb,var(--bg) 88%,transparent);padding:6px 10px;border-radius:8px;border:1px solid var(--border)}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key i{width:22px;height:12px;border-radius:6px;display:inline-block;border:1.5px solid var(--rule);background:var(--card)}
+.key i.r{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.key i.m{background:var(--accent);border-color:var(--accent)}
+.filterchip{position:absolute;left:50%;top:12px;translate:-50% 0;z-index:4;display:flex;align-items:center;gap:8px;background:var(--fg);color:var(--bg);border-radius:20px;padding:5px 6px 5px 14px;font-size:13.5px;box-shadow:var(--shadow);max-width:calc(100% - 28px)}
+.filterchip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filterchip button{border:0;background:color-mix(in srgb,var(--bg) 20%,transparent);color:var(--bg);border-radius:14px;padding:2px 10px;cursor:pointer;font-size:13px}
+
+/* Panel */
+.panel{border-left:1px solid var(--border);background:var(--card);overflow-y:auto;min-width:0;position:relative;z-index:3}
+.pin{padding:18px 20px 28px;display:flex;flex-direction:column;gap:18px}
+.panel h2{font-family:var(--f-display);font-weight:600;font-size:23px;line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.panel h3{font-family:var(--f-mono);font-weight:500;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.eyebrow2{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.eyebrow2 .dot{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.back{align-self:flex-start;border:0;background:none;padding:0;color:var(--muted);cursor:pointer;font-size:14px}
+.back:hover{color:var(--fg)}
+.skill{font-size:18px;line-height:1.4;margin:0}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:3px 10px;font-size:13px;border:1px solid var(--border);background:var(--surface)}
+.pill.ok{background:var(--c);color:var(--on-strand);border-color:var(--c)}
+.pill.ready{border-color:var(--c);color:var(--fg)}
+.pips{letter-spacing:2px;color:var(--c)}
+.primary{border:0;border-radius:10px;padding:10px 14px;background:var(--c,var(--accent));color:var(--on-strand);cursor:pointer;font-size:15px;font-weight:700;width:100%}
+.primary.undo{background:var(--surface-2);color:var(--fg)}
+.secondary{border:1px solid var(--border);border-radius:10px;padding:8px 12px;background:var(--card);cursor:pointer;font-size:14px;width:100%;text-align:left}
+.secondary:hover{background:var(--surface)}
+.note{margin:0;padding:12px 14px;border-radius:10px;background:var(--surface);font-size:14.5px;line-height:1.5}
+.note b{font-family:var(--f-display);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--card);border-radius:16px;padding:3px 10px 3px 7px;cursor:pointer;font-size:13.5px;max-width:100%}
+.chip:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 8%,var(--card))}
+.chip .d{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--c);flex:none}
+.chip.m .d{background:var(--c)}
+.chip .cid{font-family:var(--f-mono);font-size:10.5px;font-weight:700;color:var(--c)}
+.chip .ct{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{color:var(--muted);font-size:14px;margin:0}
+
+.stat{display:flex;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.stat b{font-family:var(--f-display);font-size:34px;font-weight:600;line-height:1}
+.stat span{color:var(--muted)}
+.rows{display:flex;flex-direction:column;gap:2px}
+.row{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;border:0;background:none;padding:6px 8px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
+.row:hover,.row.on{background:var(--surface)}
+.row .L{font-family:var(--f-mono);font-weight:700;font-size:12px;color:var(--c);text-align:center}
+.row .nm{min-width:0}
+.row .nm div{font-size:14.5px;line-height:1.25}
+.row .mini{height:4px;border-radius:2px;background:var(--surface-2);margin-top:4px;overflow:hidden}
+.row .mini i{display:block;height:100%;background:var(--c)}
+.row .n{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mrow{grid-template-columns:22px 1fr auto}
+.mrow .L{color:var(--muted);font-weight:500}
+.mrow.done .L{color:var(--accent)}
+.foot{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);padding-top:16px}
+.confirm{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:10px;background:var(--surface);font-size:14px}
+.confirm div{display:flex;gap:8px}
+.confirm button{flex:1;border-radius:8px;padding:7px;cursor:pointer;border:1px solid var(--border);background:var(--card)}
+.confirm button.danger{background:var(--sD);border-color:var(--sD);color:var(--on-strand)}
+.banner{position:absolute;left:50%;bottom:64px;translate:-50% 0;z-index:6;background:var(--fg);color:var(--bg);padding:10px 12px 10px 16px;border-radius:12px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow);font-size:14px;max-width:calc(100% - 28px);flex-wrap:wrap}
+.banner button{border:0;border-radius:8px;padding:5px 10px;cursor:pointer;background:var(--bg);color:var(--fg);font-size:13.5px}
+.banner button.ghost{background:transparent;color:var(--bg);border:1px solid color-mix(in srgb,var(--bg) 40%,transparent)}
+.toast{position:fixed;left:50%;bottom:24px;translate:-50% 0;background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:14px;z-index:20;box-shadow:var(--shadow)}
+
+/* About sheet */
+.about{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--fg) 35%,transparent);display:grid;place-items:center;padding:16px}
+.about article{background:var(--bg);border-radius:14px;max-width:720px;width:100%;max-height:100%;overflow-y:auto;padding:28px 30px 34px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.about h2{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;margin:0 0 6px;letter-spacing:-.015em;text-wrap:balance}
+.about h3{font-family:var(--f-display);font-weight:600;font-size:19px;margin:26px 0 8px}
+.about p,.about li{font-size:16px;line-height:1.6;max-width:65ch}
+.about p{margin:0 0 10px}
+.about ul{padding-left:20px;margin:0 0 10px}
+.about li{margin-bottom:6px}
+.about .sub{color:var(--muted);font-style:italic;margin-bottom:16px}
+.about code{font-family:var(--f-mono);font-size:13px;background:var(--surface);padding:1px 5px;border-radius:4px}
+.about .close{float:right;border:1px solid var(--border);background:var(--card);border-radius:8px;padding:5px 11px;cursor:pointer}
+
+.sheet-handle{display:none}
+
+@media (max-width:820px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+  .top{gap:8px 10px;padding:8px 16px}
+  .brand h1{font-size:18px}.brand h1 span{display:none}
+  .bar{width:70px}
+  .brand{flex:1 1 100%}
+  .brand .eyebrow,.prog{display:none}
+  .search{flex:1 1 auto;min-width:0}
+  .search input{width:100%}
+  .panel{border-left:0;border-top:1px solid var(--border);max-height:46vh;box-shadow:0 -6px 20px rgba(0,0,0,.08)}
+  .panel.collapsed{max-height:52px;overflow:hidden}
+  .sheet-handle{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:var(--card);padding:10px 20px 6px;cursor:pointer;position:sticky;top:0;z-index:2;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .sheet-handle::before{content:"";position:absolute;left:50%;top:5px;translate:-50% 0;width:36px;height:4px;border-radius:2px;background:var(--rule)}
+  .pin{padding-top:8px}
+  .key{display:none}
+  .hint{display:none}
+  .about article{padding:22px 18px 28px}
+  .about h2{font-size:25px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">Skill map · revised October 2026</div>
+      <h1>Ancient Greek Knowledge Graph <span>· τὰ μαθήματα</span></h1>
+    </div>
+    <div class="prog" aria-live="polite"><span><b id="pCount">0</b> / <span id="pTotal">0</span> mastered</span><div class="bar"><i id="pBar"></i></div></div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Find a skill: D18, aorist, ἄν…" autocomplete="off" aria-label="Find a skill">
+      <span class="count" id="qCount"></span>
+    </div>
+    <button class="tbtn" id="aboutBtn" type="button">How to read this</button>
+  </header>
+
+  <main class="map" id="map" aria-label="Skill tree. Prerequisites at the top, advanced skills below.">
+    <div class="world" id="world">
+      <svg class="edges" id="edges" aria-hidden="true"></svg>
+      <div id="nodes"></div>
+      <svg class="strandmap" id="strandmap" aria-hidden="true"></svg>
+    </div>
+    <div class="key" aria-hidden="true">
+      <span><i></i> not yet</span><span><i class="r"></i> ready to learn</span><span><i class="m"></i> mastered</span>
+    </div>
+    <div class="filterchip" id="filterChip" hidden><span id="filterText"></span><button type="button" id="filterClear">Show all</button></div>
+    <div class="hint">Click a skill to mark it mastered. Drag or scroll to pan; pinch or ⌘/Ctrl + scroll to zoom.</div>
+    <div class="mapctl">
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" id="zout" aria-label="Zoom out">−</button>
+      <button type="button" id="zfit" aria-label="Fit whole graph" title="Fit whole graph">⤢</button>
+    </div>
+    <div class="banner" id="shareBanner" hidden></div>
+  </main>
+
+  <aside class="panel" id="panel" aria-label="Details">
+    <button class="sheet-handle" id="handle" type="button" aria-expanded="true"><span id="handleText">Overview</span><span id="handleIcon">Hide</span></button>
+    <div class="pin" id="pin"></div>
+  </aside>
+</div>
+
+<div class="about" id="about" hidden role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <article>
+    <button class="close" type="button" id="aboutClose">Close</button>
+    <h2 id="aboutTitle">How to read this graph</h2>
+    <p class="sub">Draft 2, October 2026. Built to be revised.</p>
+    <p><b>Nodes are skills, not topics.</b> The test of a well-formed node is that you can imagine a question that proves you have it or proves you don’t. “Participles” is a topic; “parse a participle in context and identify its syntactic function” is a skill.</p>
+    <p><b>Edges are prerequisites, and they run one way: downward.</b> Everything a skill depends on sits above it. You cannot build D18 until the skills feeding into it are solid. Not “have been taught”; solid, at the speed where they no longer cost working memory.</p>
+    <p>The graph is useful in two directions:</p>
+    <ul>
+      <li><b>Forwards, as a map:</b> what am I entitled to attempt next? Skills with a coloured ring are ready: every prerequisite is marked mastered.</li>
+      <li><b>Backwards, as a diagnostic:</b> this sentence defeated me; which node failed? Select a skill and the graph lights up every prerequisite chain above it. When you can’t read a sentence, don’t “review the passage.” Trace the edges upward until you hit the node that’s actually soft, and drill that.</li>
+    </ul>
+    <p>Eleven strands, lettered A to K. They are not sequential. Several run in parallel from early on, and the interesting nodes are the ones where strands converge.</p>
+
+    <h3>Using the page</h3>
+    <ul>
+      <li>Click a skill to toggle it mastered. Its details open in the side panel, including a button to mark all of its prerequisites at once.</li>
+      <li>Hover or select a skill to trace its lineage: solid dark lines lead up to its prerequisites, dashed lines lead down to what it unlocks.</li>
+      <li>Zoomed out, the graph shows the strand overview: each strand’s name sits over its skills, with arrows showing which strands feed which. Zoom in and it gives way to the skill names.</li>
+      <li>Pick a strand or a milestone in the panel to fade out everything else.</li>
+      <li>Progress is saved in this browser. “Copy progress link” makes a link that carries your marks to another device or person.</li>
+      <li>Only the direct edges are drawn. If A → B → C, the redundant A → C line is left out, though the detail panel lists every prerequisite as written.</li>
+    </ul>
+
+    <h3>What changed from draft 1</h3>
+    <ul>
+      <li><b>Fixed a cycle.</b> Chunking (G4 → now G5) required idiom (F7), which required unseen reading (G6 → G8), which required chunking. Chunking now rests on core vocabulary (F2) instead.</li>
+      <li><b>Fixed a milestone contradiction.</b> Reading in Greek word order was required for glossed Xenophon but depended on E20, which wasn’t due until the next milestone. Reading in Greek order (G4) now rests on case, article and preposition syntax, and word order and emphasis (E21) builds on it.</li>
+      <li><b>Expanded strand-level prerequisites.</b> Edges like “C, D”, “E”, “I”, “C1–C6”, “E1–E19” and “C-early” are now specific nodes, so the tree can be drawn and traced.</li>
+      <li><b>Connected dead ends.</b> Uppercase letters feed the Leiden conventions; iota subscript feeds the first declension; elision feeds parsing in context; numerals, adverbs and the accent nodes feed parsing and composition; aspect (D1) now feeds the present system directly; −μι verbs and verbal adjectives feed unseen reading and Attic prose.</li>
+      <li><b>Filled missing edges in the verb system.</b> The future, subjunctive, infinitives and participles now also require the middle/passive endings and the first aorist; principal parts require the aorists and the future they summarize.</li>
+      <li><b>Moved particles earlier.</b> μέν/δέ and γάρ appear in the first sentences you read, so E19 now rests on agreement and core vocabulary rather than on subordinate clauses.</li>
+      <li><b>Renumbered.</b> E19a (ἄν) is now E20 and word order is E21. Strand G gained two nodes: reading a glossed text (G3) and extensive reading (G7), so G runs G1–G10.</li>
+      <li><b>Added effort weights.</b> Each node is marked as hours, weeks or months, answering the “no weights” objection below in a rough way.</li>
+      <li><b>Look a word up (A16)</b> now needs only the alphabet, breathings and accent marks, matching the first milestone.</li>
+    </ul>
+
+    <h3>Where this graph is wrong</h3>
+    <ul>
+      <li><b>The edges are cleaner than reality.</b> Real learning is spiral: you meet participles, half-learn them, come back. The graph implies a crispness that doesn’t exist.</li>
+      <li><b>The weights are guesses.</b> D18 and C12 are no longer drawn as equals, but “weeks” and “months” are rough. A real version would measure them.</li>
+      <li><b>Strand G is still under-specified.</b> Fluency probably deserves twenty nodes and has ten, because it’s the least well described part of language pedagogy generally.</li>
+      <li><b>The dialect strand pretends Attic is the root.</b> Historically backwards; Homer is older. But pedagogically correct, and this is a learning graph, not a linguistic one.</li>
+      <li><b>No forgetting.</b> Nothing here models decay, which is the actual reason most people who “took Greek” can’t read Greek. Every node needs a maintenance schedule, not just an acquisition event. Unmark a node when it goes soft.</li>
+      <li><b>F6 and I8 aren’t really skills.</b> They’re more like slow changes in perception. They’re on the graph because leaving them off would misrepresent the destination.</li>
+    </ul>
+    <p><i>Revise freely. The graph is a tool, not a claim.</i></p>
+  </article>
+</div>
+
+<script>
+const DATA = {"w":2986,"h":2666,"nw":156,"nh":50,"strands":[{"id":"A","name":"Decoding","intro":"The base of everything. Roughly six weeks. Cheap, and skipping it poisons every strand below it."},{"id":"B","name":"Sound Change","intro":"The hidden strand. Most textbooks bury it in an appendix; Mollin foregrounds it, which is the best argument for that book. Every node here converts a pile of memorization into a rule.","more":[["Why this strand matters","B2 alone explains the sigmatic aorist, the future, the third-declension dative plural, and half the perfect system: four separate \"irregularities\" that are one rule. B4 explains principal parts, which are otherwise the single most demoralizing memorization task in the language. Every hour here buys ten in strands C and D."],["The trap","Understanding B does not substitute for memorizing C and D. Deriving a form from first principles mid-sentence is exactly the thing automaticity exists to prevent. Learn the rules so the paradigms stick faster and make sense; then memorize the paradigms anyway."]]},{"id":"C","name":"Nominal Morphology","intro":"Nouns, adjectives and pronouns. C2, the article, is the master key."},{"id":"D","name":"Verbal Morphology","intro":"The mountain. Perhaps sixty percent of the total work."},{"id":"E","name":"Syntax","intro":"How forms combine into clauses. E6 is the keystone of the whole strand."},{"id":"F","name":"Lexicon","intro":"F1 is pure spaced repetition and should start before you can read a sentence. F6 is where translation stops being a technical exercise and becomes interpretation."},{"id":"G","name":"Reading Fluency","intro":"The strand everyone leaves implicit. It is not a byproduct of A–F; it needs its own hours, and it is the difference between having studied Greek and reading Greek."},{"id":"H","name":"Dialect","intro":"Where Greek stops resembling other languages. Each node is a delta from Attic, not a new language."},{"id":"I","name":"Prose Style","intro":"The Greek-specific top layer, and the one that makes reading pleasurable rather than merely possible."},{"id":"J","name":"Production","intro":"Optional for reading, but the sharpest diagnostic available, because it separates recognition from knowledge."},{"id":"K","name":"Apparatus","intro":"Not required to read Greek. Required to work with Greek."}],"nodes":[{"id":"A1","t":"Lowercase letters","s":"Recognize all 24 lowercase letterforms without hesitation","e":1,"p":[],"x":500,"y":65},{"id":"A2","t":"Uppercase letters","s":"Recognize uppercase letterforms","e":1,"p":["A1"],"x":118,"y":1831},{"id":"A3","t":"Alphabetical order","s":"Recite and apply alphabetical order","e":1,"p":["A1"],"x":384,"y":175},{"id":"A4","t":"Handwriting","s":"Write the letters by hand","e":1,"p":["A1"],"x":2508,"y":175},{"id":"A5","t":"Vowel quantity","s":"Vowel quantity: the ε/η and ο/ω pairs; hidden quantity in α ι υ","e":1,"note":"Vowel quantity looks like pedantry for the first two years and then turns out to be load-bearing three separate times: accent rules (A11), the difference between two identical-looking forms, and all of meter (H4). Learn it as you learn each word, not later.","p":["A1"],"x":1171,"y":175},{"id":"A6","t":"Proper diphthongs","s":"Proper diphthongs: αι ει οι υι αυ ευ ου ηυ","e":1,"p":["A1","A5"],"x":997,"y":285},{"id":"A7","t":"Iota subscript","s":"Improper diphthongs and iota subscript: ᾳ ῃ ῳ","e":1,"p":["A6"],"x":997,"y":405},{"id":"A8","t":"Breathings","s":"Breathings: rough, smooth, initial ῥ and ὑ","e":1,"p":["A1"],"x":471,"y":285},{"id":"A9","t":"Syllable division","s":"Divide a word into syllables","e":1,"p":["A5","A6"],"x":2217,"y":405},{"id":"A10","t":"Accent marks","s":"Recognize acute, grave, circumflex","e":1,"p":["A1"],"x":649,"y":285},{"id":"A11","t":"Accent placement","s":"Accent placement rules: the law of limitation, the long-ultima constraint","e":2,"p":["A5","A9","A10"],"x":2165,"y":515},{"id":"A12","t":"Persistent vs. recessive","s":"Persistent vs. recessive accent: nouns keep it, verbs throw it back","e":1,"p":["A11"],"x":1787,"y":653},{"id":"A13","t":"Read aloud","s":"Read aloud with correct quantity and pitch","e":2,"p":["A5","A6","A8","A10"],"x":292,"y":405},{"id":"A14","t":"Clusters & nasal γ","s":"Consonant clusters and nasal gamma (γγ γκ γχ γξ)","e":1,"p":["A1"],"x":578,"y":175},{"id":"A15","t":"Elision & crasis","s":"Elision, crasis, movable nu: recognizing that words merge and shed letters","e":1,"p":["A14"],"x":537,"y":937},{"id":"A16","t":"Look a word up","s":"Look a word up: strip diacritics, find the headword, read the entry","e":1,"p":["A3","A8","A10"],"x":466,"y":405},{"id":"B1","t":"Contraction","s":"Contraction: ε+ε→ει, ε+ο→ου, α+ε→ᾱ and the rest","e":2,"p":["A5","A6"],"x":1170,"y":405},{"id":"B2","t":"Stop + σ","s":"Stop + σ: labial→ψ, velar→ξ, dental→drops","e":1,"p":["A14"],"x":1345,"y":285},{"id":"B3","t":"Compensatory lengthening","s":"Compensatory lengthening: why a lost consonant stretches the vowel before it","e":1,"p":["B2"],"x":649,"y":405},{"id":"B4","t":"Ablaut","s":"Ablaut: λείπω / ἔλιπον / λέλοιπα as one root in three grades","e":1,"p":["A5"],"x":1817,"y":515},{"id":"B5","t":"Aspiration & Grassmann","s":"Aspiration and Grassmann’s law: θρίξ / τριχός, and why reduplicated θ- becomes τ-","e":1,"p":["A14"],"x":1644,"y":515},{"id":"B6","t":"Assimilation","s":"Assimilation in compounds: συν- + λ → συλ-, ἐν- + β → ἐμ-","e":1,"p":["A14"],"x":205,"y":1047},{"id":"B7","t":"Quantitative metathesis","s":"Quantitative metathesis: -ηος → -εως","e":1,"p":["A5"],"x":1171,"y":285},{"id":"C1","t":"The concept of case","s":"The concept of case: grammatical relation marked on the word, not by position","e":1,"p":[],"x":823,"y":285},{"id":"C2","t":"The definite article","s":"The definite article, all 24 forms, cold","e":1,"note":"C2 is the master key. Twenty-four forms, memorized to sub-second recall, and you have paid in advance for most of C3–C8: the declension endings rhyme with the article, and the article tells you the case of the noun it’s attached to even when the noun’s own ending is ambiguous. It is the highest return per unit of memorization anywhere in the language.","p":["A1","A8","C1"],"x":823,"y":405},{"id":"C3","t":"First declension","s":"First declension, all four sub-patterns","e":2,"p":["C2","A7"],"x":849,"y":515},{"id":"C4","t":"Second declension","s":"Second declension, including contract and Attic","e":2,"p":["C2","B1"],"x":1023,"y":515},{"id":"C5","t":"3rd decl.: consonant stems","s":"Third declension: consonant stems","e":2,"p":["C2","B2","B3"],"x":675,"y":515},{"id":"C6","t":"3rd decl.: vowel stems","s":"Third declension: -ις, -υς, -ευς, neuter -ος","e":2,"p":["C5","B7"],"x":1083,"y":653},{"id":"C7","t":"2-1-2 adjectives","s":"2-1-2 adjectives","e":1,"p":["C3","C4"],"x":903,"y":653},{"id":"C8","t":"3rd-decl. & mixed adjectives","s":"Third-declension and mixed adjectives: πᾶς, ἡδύς, μέγας, πολύς","e":2,"p":["C5","C6","C7"],"x":913,"y":827},{"id":"C9","t":"Comparison","s":"Comparison: -τερος/-τατος, -ίων/-ιστος, suppletives","e":1,"p":["C7","C8"],"x":1135,"y":937},{"id":"C10","t":"Adverbs","s":"Adverb formation and comparison","e":1,"p":["C7","C9"],"x":1135,"y":1047},{"id":"C11","t":"Pronouns","s":"Pronouns: personal, demonstrative, relative, interrogative, indefinite, reflexive, reciprocal","e":2,"p":["C2","C5","C7"],"x":961,"y":937},{"id":"C12","t":"Numerals","s":"Numerals and the numeral system","e":1,"p":["C5","C7"],"x":725,"y":827},{"id":"C13","t":"Nominal accent","s":"Persistent accent on nominals","e":1,"p":["A12","C3","C4"],"x":1608,"y":827},{"id":"D1","t":"Aspect","s":"Aspect as the organizing category: imperfective, aoristic, perfective","e":1,"note":"Putting aspect at the root with no prerequisite is the substantive claim of this graph, and it’s Mollin’s claim too. Aspect is a conceptual node: it costs an afternoon and it reorganizes everything downstream. Learn it before any verb morphology, not after, or you’ll spend a year translating \"tenses\" and quietly getting the optative wrong.","p":[],"x":1343,"y":405},{"id":"D2","t":"Personal endings","s":"Primary vs. secondary personal endings","e":1,"p":["A1"],"x":1517,"y":405},{"id":"D3","t":"Voice","s":"Three voices, and the middle as a real category rather than a leftover","e":1,"p":["D2"],"x":1296,"y":515},{"id":"D4","t":"Present active","s":"Thematic present indicative active","e":1,"p":["D1","D2"],"x":1470,"y":515},{"id":"D5","t":"Middle/passive endings","s":"Middle/passive endings","e":1,"p":["D2","D3"],"x":1440,"y":653},{"id":"D6","t":"The augment","s":"The augment, syllabic and temporal","e":1,"p":["A5","D2"],"x":1991,"y":515},{"id":"D7","t":"Imperfect","s":"Imperfect","e":1,"p":["D4","D6"],"x":2308,"y":653},{"id":"D8","t":"Second aorist","s":"Second (thematic) aorist","e":2,"p":["D4","D6","B4"],"x":1961,"y":653},{"id":"D9","t":"First aorist","s":"First (sigmatic) aorist","e":2,"p":["D4","D6","B2"],"x":1613,"y":653},{"id":"D10","t":"Future","s":"Future, including contract and liquid futures","e":2,"p":["D4","B1","B2"],"x":1262,"y":653},{"id":"D11","t":"Principal parts","s":"Principal parts as a system rather than a list","e":3,"p":["B2","B4","B5","D8","D9","D10"],"x":1782,"y":827},{"id":"D12","t":"Perfect & pluperfect","s":"Perfect and pluperfect; reduplication","e":2,"p":["B5","D5","D11"],"x":1547,"y":937},{"id":"D13","t":"Aorist & future passive","s":"Aorist passive and future passive","e":2,"p":["D5","D9","D10"],"x":1087,"y":827},{"id":"D14","t":"Subjunctive","s":"Subjunctive: lengthened thematic vowel, all aspects","e":2,"p":["D4","D5","D8","D9"],"x":1956,"y":827},{"id":"D15","t":"Optative","s":"Optative","e":2,"p":["D14"],"x":1925,"y":1047},{"id":"D16","t":"Imperative","s":"Imperative","e":1,"p":["D4","D8","D9"],"x":1435,"y":827},{"id":"D17","t":"Infinitives","s":"Infinitives across aspects and voices","e":2,"p":["D4","D5","D8","D9","D12","D13"],"x":1720,"y":1047},{"id":"D18","t":"Participles","s":"Participles across aspects and voices","e":3,"note":"Participles have prerequisites spanning both morphological strands, which is exactly why they’re the wall every Greek student hits. The graph explains the difficulty rather than just recording it: nothing about participles is intrinsically hard, but they are the first node where the nominal and verbal systems fully converge, so any softness anywhere in C or D surfaces here at once. If participles collapse, the bug is almost never in participles.","p":["C5","C7","D4","D5","D8","D9","D12","D13"],"x":858,"y":1047},{"id":"D19","t":"Contract verbs","s":"Contract verbs: -άω, -έω, -όω","e":2,"p":["B1","D4","D5"],"x":1261,"y":827},{"id":"D20","t":"Athematic (-μι) verbs","s":"Athematic (-μι) verbs: δίδωμι, τίθημι, ἵστημι, δείκνυμι","e":3,"p":["D4","D5","D9"],"x":2477,"y":827},{"id":"D21","t":"Irregular verbs","s":"Irregular and suppletive: εἰμί, εἶμι, οἶδα, φημί","e":2,"p":["D20"],"x":2140,"y":1721},{"id":"D22","t":"Verbal accent","s":"Recessive accent on verbs","e":1,"p":["A12","D4"],"x":2130,"y":827},{"id":"D23","t":"Verbal adjectives","s":"Verbal adjectives in -τος and -τέος","e":1,"p":["C7","D11"],"x":2482,"y":937},{"id":"E1","t":"Case syntax","s":"Case syntax: the uses of each case","e":2,"p":["C1","C3","C4","C5"],"x":466,"y":653},{"id":"E2","t":"Article syntax","s":"Article syntax: attributive and predicate position, substantivizing, the articular infinitive","e":1,"p":["C2","C7"],"x":883,"y":1387},{"id":"E3","t":"Agreement","s":"Agreement, including the neuter plural subject with singular verb","e":1,"p":["C7","D4"],"x":710,"y":1167},{"id":"E4","t":"Prepositions","s":"Prepositions and the cases they govern","e":2,"p":["E1"],"x":288,"y":1277},{"id":"E5","t":"Aspect in the indicative","s":"Aspect in the indicative: where time and aspect coexist","e":1,"p":["D1","D7","D8","D9"],"x":2304,"y":827},{"id":"E6","t":"Aspect outside the indicative","s":"Aspect outside the indicative: no time, only aspect","e":2,"note":"E6 is the keystone of the whole strand. Once aspect-not-time is genuinely automatic outside the indicative, conditionals, purpose clauses, indirect discourse, and prohibitions all stop being separate topics and become one topic with six faces. Most of the apparent complexity of Greek syntax is people who never internalized E6 memorizing its consequences one at a time.","p":["E5","D14","D15","D16","D17"],"x":1822,"y":1167},{"id":"E7","t":"Participle syntax","s":"Participle syntax: attributive, circumstantial, supplementary","e":2,"p":["D18","E2"],"x":857,"y":1497},{"id":"E8","t":"Genitive absolute","s":"Genitive absolute","e":1,"p":["E1","E7"],"x":844,"y":1607},{"id":"E9","t":"Infinitive syntax","s":"Infinitive syntax: complementary, articular, of result","e":1,"p":["D17","E2"],"x":1940,"y":1497},{"id":"E10","t":"Indirect discourse","s":"Indirect discourse: ὅτι, infinitive, and participle constructions","e":2,"p":["D17","D18","E6"],"x":1618,"y":1277},{"id":"E11","t":"Subordinate clauses","s":"Subordination: relative, temporal, causal clauses","e":2,"p":["C11","E6"],"x":1505,"y":1497},{"id":"E12","t":"Conditionals","s":"Conditionals, all six","e":2,"p":["E6","E20"],"x":2200,"y":1277},{"id":"E13","t":"Purpose clauses","s":"Purpose clauses","e":1,"p":["D14","D15","E11"],"x":1331,"y":1607},{"id":"E14","t":"Result clauses","s":"Result clauses, actual and natural","e":1,"p":["E9"],"x":1852,"y":1607},{"id":"E15","t":"Fear & effort clauses","s":"Fear and effort clauses","e":1,"p":["D10","D14","D15","E11"],"x":1505,"y":1607},{"id":"E16","t":"Wishes & prohibitions","s":"Wishes, commands, prohibitions; μή + aorist subjunctive","e":1,"p":["D14","D15","D16","E6"],"x":2026,"y":1607},{"id":"E17","t":"οὐ vs. μή","s":"οὐ vs. μή, and what the choice tells you about the clause","e":1,"p":["E6","E12"],"x":2200,"y":1607},{"id":"E18","t":"Sequence of moods","s":"Sequence of moods; the optative of indirect discourse","e":2,"p":["D15","E10","E11"],"x":1679,"y":1607},{"id":"E19","t":"Particles","s":"Particles: μέν/δέ, γάρ, οὖν, δή, τοι, γε and the connective texture of Greek","e":3,"note":"E19 is undervalued. Particles are how Greek marks the logical relationship between sentences, the work English does with paragraphing, subordination, and tone of voice. Students skip them as noise for years. Reading a page of Plato with the particles switched off is like reading a transcript with all the punctuation removed.","p":["E3","F1"],"x":1057,"y":1387},{"id":"E20","t":"The particle ἄν","s":"ἄν: potential, iterative, and in conditionals","e":1,"note":"ἄν deserves its own node because it is two letters, appears constantly, means nothing on its own, and changes the meaning of everything around it. It is the single highest ratio of confusion to size in the language.","p":["D14","D15","E5"],"x":2304,"y":1167},{"id":"E21","t":"Word order & emphasis","s":"Word order and emphasis: hyperbaton, prolepsis, the point of a fronted word","e":3,"p":["E2","E7","E19","G4"],"x":1018,"y":1607},{"id":"F1","t":"Core 500 words","s":"Core 500 words to automatic recall, roughly 80% of running text","e":2,"note":"F1 is pure spaced repetition and should start before you can read a sentence.","p":["A5","A8"],"x":466,"y":1277},{"id":"F2","t":"Core 1000–1500 words","s":"Core 1000–1500","e":3,"p":["F1"],"x":288,"y":1497},{"id":"F3","t":"Author vocabulary","s":"Author-specific vocabulary (for Xenophon: military, Persian, administrative)","e":2,"p":["F2"],"x":292,"y":1831},{"id":"F4","t":"Preverb semantics","s":"Preverb semantics: what ἀνα-, κατα-, δια-, ὑπο- do to a verb","e":2,"p":["B6","E4","F1"],"x":240,"y":1387},{"id":"F5","t":"Word formation","s":"Word formation: -σις, -μα, -της, -ικός, -τήριον and what each suffix means","e":2,"p":["F2","F4"],"x":322,"y":1607},{"id":"F6","t":"Semantic range","s":"Semantic range: λόγος, ἀρετή, δίκη, νόμος, φύσις. One word, no English equivalent","e":3,"note":"F6 is where translation stops being a technical exercise and becomes interpretation, and it’s the node that makes the whole enterprise worth it. Like I8, it is less a skill than a slow change in perception.","p":["F2","F5","G8"],"x":1620,"y":1941},{"id":"F7","t":"Idiom & collocation","s":"Idiom and collocation: what a Greek would actually have said","e":3,"p":["F3","G8"],"x":1446,"y":1941},{"id":"F8","t":"Register & false friends","s":"Register and false friends","e":2,"p":["F7"],"x":1446,"y":2051},{"id":"G1","t":"Parse in isolation","s":"Parse a form given in isolation","e":2,"p":["C8","C10","C11","C12","D13","D15","D16","D17","D18","D19"],"x":1180,"y":1167},{"id":"G2","t":"Parse in context","s":"Parse in context, under time pressure","e":2,"p":["A15","E3","G1"],"x":640,"y":1277},{"id":"G3","t":"Read a glossed text","s":"Read a glossed text: use running vocabulary and notes without losing the thread","e":2,"note":"New node. Glossed reading (Steadman’s Anabasis, for example) is its own skill: the glosses only help if you can consult them without dropping the sentence you were holding in your head.","p":["A16","F1","G2"],"x":482,"y":1387},{"id":"G4","t":"Read in Greek order","s":"Read in Greek word order without mentally rearranging into English","e":3,"note":"G4 is the pivot. The habit of scanning a Greek sentence for the verb, then the subject, then reassembling it into English is a decoding strategy, and like all decoding strategies it caps out. Greek word order carries emphasis; rearranging it discards information and guarantees you never read faster than you can translate. Breaking this habit is deliberate work and it is unpleasant.","p":["E1","E2","E4","G3"],"x":561,"y":1497},{"id":"G5","t":"Chunk phrases","s":"Chunk: take in phrases as units rather than words","e":2,"p":["F2","G4"],"x":670,"y":1607},{"id":"G6","t":"Read a passage aloud","s":"Read a known passage aloud fluently","e":1,"note":"Cheap and underrated. Reading aloud costs no extra hours, since you’re reading anyway, and it’s the mechanism by which parsing becomes recognition. You cannot sight-read a script whose sounds you have never encoded.","p":["A13","G4"],"x":496,"y":1607},{"id":"G7","t":"Extensive reading","s":"Extensive reading: large volumes of easy or already-known text, read for meaning","e":3,"note":"New node. Volume of comfortable reading is the mechanism that turns slow, effortful recognition into automatic recognition. Re-reading counts.","p":["G5","G6"],"x":905,"y":1721},{"id":"G8","t":"Read unseen at speed","s":"Read an unseen passage at speed with acceptable comprehension","e":3,"p":["D21","E8","E12","E13","E14","E15","E16","E17","E18","E21","G7"],"x":1646,"y":1831},{"id":"G9","t":"Read without translating","s":"Read without conscious translation","e":3,"p":["F6","G8"],"x":1794,"y":2051},{"id":"G10","t":"Sustained reading","s":"Sustain it: a page in an hour → a page in ten minutes → continuous reading","e":3,"p":["G9"],"x":1794,"y":2161},{"id":"H1","t":"Attic prose base","s":"Attic prose as the base register","e":2,"p":["D23","G8"],"x":2456,"y":1941},{"id":"H2","t":"Ionic","s":"Ionic: η for ᾱ, uncontracted forms, psilosis, κ- pronouns, quantitative metathesis","e":2,"note":"Perhaps twenty hours of focused work on top of solid Attic: the cheapest large expansion of readable territory available, and the one that opens Herodotus.","p":["B7","H1"],"x":2803,"y":2051},{"id":"H3","t":"Homeric","s":"Homeric: digamma, tmesis, -οιο and -άων, κε for ἄν, unaugmented aorists, formulae","e":3,"p":["H1"],"x":2282,"y":2051},{"id":"H4","t":"Dactylic hexameter","s":"Dactylic hexameter","e":2,"note":"Where vowel quantity from A5 finally pays: you cannot scan a line if you don’t know which alphas are long.","p":["A5","A9","H3"],"x":2516,"y":2161},{"id":"H5","t":"Tragic diction & lyric","s":"Tragic diction; Doric ᾱ in choral odes; lyric meters","e":3,"p":["H1","H4"],"x":2516,"y":2271},{"id":"H6","t":"Post-classical Attic","s":"Post-classical Attic and Atticizing prose (Plutarch, Lucian)","e":2,"p":["H1"],"x":2456,"y":2051},{"id":"H7","t":"Koine","s":"Koine","e":1,"p":["H1"],"x":2629,"y":2051},{"id":"I1","t":"Parataxis vs. hypotaxis","s":"Distinguish paratactic from hypotactic construction","e":1,"p":["E11","G8"],"x":2808,"y":1941},{"id":"I2","t":"Xenophon","s":"Xenophon: plainness, low ornament, clean subordination; the reference point","e":2,"note":"I2 first, deliberately. Xenophon is the natural stylistic baseline: plain enough that everything else can be described as a deviation from it.","p":["H1"],"x":1098,"y":2051},{"id":"I3","t":"Herodotus","s":"Herodotus: λέξις εἰρομένη, the \"strung-together\" style; ring composition; the logic of digression","e":2,"p":["H2","I1","I2"],"x":2803,"y":2161},{"id":"I4","t":"Thucydides","s":"Thucydides: abstraction, variatio, antithesis, the deliberately difficult period","e":3,"p":["E21","I2"],"x":920,"y":2161},{"id":"I5","t":"Plato","s":"Plato: dialogue register, colloquialism, particles doing conversational work, irony markers","e":2,"p":["E19","I2"],"x":1094,"y":2381},{"id":"I6","t":"Gorgianic figures","s":"Gorgianic figures: isocolon, antithesis, homoeoteleuton","e":1,"p":["I4"],"x":920,"y":2271},{"id":"I7","t":"Attic oratory","s":"Attic oratory: periodic structure, Lysianic plainness vs. Demosthenic weight","e":2,"p":["E21","I6"],"x":920,"y":2381},{"id":"I8","t":"Identify an author","s":"Identify an author from an unattributed paragraph","e":3,"note":"A real terminal skill and a fun one: at that point style has become perceptible rather than theoretical.","p":["I3","I5","I7"],"x":2764,"y":2491},{"id":"J1","t":"Copy with diacritics","s":"Copy accurately with full diacritics","e":1,"p":["A4","A11"],"x":2482,"y":653},{"id":"J2","t":"Guided composition","s":"Guided composition: transform a given sentence","e":2,"p":["C13","D22","G1","J1"],"x":1792,"y":1277},{"id":"J3","t":"Free prose composition","s":"Free prose composition","e":3,"note":"The only exercise that fails you honestly. Reading lets you bluff: context carries you past forms you didn’t actually parse. Composition doesn’t.","p":["E8","E13","E14","E15","E16","E17","E18","J2"],"x":1756,"y":1721},{"id":"J4","t":"Pitch-accent reading","s":"Read aloud with pitch accent","e":2,"p":["A13","G6"],"x":470,"y":1721},{"id":"J5","t":"Speak spontaneously","s":"Speak spontaneously","e":3,"p":["J3","J4"],"x":496,"y":1831},{"id":"J6","t":"Compose in a style","s":"Compose in an author’s manner","e":3,"p":["I8","J3"],"x":2868,"y":2601},{"id":"K1","t":"Use a commentary","s":"Use a commentary without becoming dependent on it","e":1,"p":["G8"],"x":1272,"y":1941},{"id":"K2","t":"Use LSJ","s":"Use LSJ properly rather than defaulting to Middle Liddell","e":1,"p":["A16","F6"],"x":1620,"y":2051},{"id":"K3","t":"Apparatus criticus","s":"Read an apparatus criticus: sigla and the Latin abbreviations","e":1,"p":["K1"],"x":1272,"y":2051},{"id":"K4","t":"Textual criticism","s":"Textual criticism basics: lacuna, crux, conjecture, and why editors disagree","e":2,"p":["K3"],"x":1272,"y":2161},{"id":"K5","t":"Leiden conventions","s":"Epigraphic and papyrological conventions (the Leiden system)","e":1,"p":["A2","K4"],"x":1093,"y":2271},{"id":"K6","t":"Greek typography","s":"Greek typography: Porson and Didot traditions, accent placement, why most Greek fonts are bad","e":1,"note":"Here because you’ll notice it whether or not it’s on the map.","p":["A11"],"x":2134,"y":653}],"edges":[["A1","A2",[[439,90],[118,120],[118,135],[118,149.2],[118,163.3],[118,176.7],[118,190],[118,203.3],[118,216.7],[118,242.5],[118,268.3],[118,306.7],[118,335.4],[118,364.2],[118,383.3],[118,402.5],[118,421.7],[118,440.8],[118,471.1],[118,501.3],[118,542.7],[118,576.3],[118,610],[118,636],[118,662],[118,688],[118,714],[118,750.7],[118,787.3],[118,834.7],[118,867.5],[118,900.3],[118,918.7],[118,937],[118,955.3],[118,973.7],[118,1002],[118,1030.3],[118,1068.7],[118,1097.4],[118,1126.2],[118,1145.3],[118,1164.5],[118,1183.7],[118,1202.8],[118,1230.8],[118,1258.7],[118,1295.3],[118,1322.8],[118,1350.3],[118,1368.7],[118,1387],[118,1405.3],[118,1423.7],[118,1451.2],[118,1478.7],[118,1515.3],[118,1543],[118,1570.7],[118,1589.3],[118,1608],[118,1626.7],[118,1645.3],[118,1682.7],[118,1720],[118,1776],[118,1806]]],["A1","A3",[[457,90],[457,90],[391.3,120],[384,150]]],["A1","A4",[[561,90],[561,90],[2313.3,120],[2508,150]]],["A1","A5",[[526,90],[526,90],[1106.5,120],[1171,150]]],["A5","A6",[[1145,200],[1145,200],[1011.8,230],[997,260]]],["A6","A7",[[981,310],[981,310],[995.4,345],[997,380]]],["A1","A8",[[474,90],[471,120],[471,135],[471,149.2],[471,163.3],[471,176.7],[471,193.3],[471,210],[471,230],[471,260]]],["A6","A9",[[1044,310],[1044,310],[2099.7,345],[2217,380]]],["A1","A10",[[491,90],[491,120],[491,140],[491,156.7],[491,173.3],[491,186.7],[491,200.8],[491,215],[491,230],[649,260]]],["A9","A11",[[2191,430],[2191,430],[2191,460],[2191,490]]],["A10","A11",[[688,310],[2130,345],[2130,362.5],[2130,375.4],[2130,388.3],[2130,396.7],[2130,405],[2130,413.3],[2130,421.7],[2130,433.3],[2130,445],[2130,460],[2139,490]]],["A11","A12",[[2126,540],[2126,540],[1820.9,584],[1787,628]]],["A6","A13",[[950,310],[950,310],[392.9,345],[331,380]]],["A8","A13",[[424,310],[424,310],[270.1,345],[253,380]]],["A10","A13",[[610,310],[610,310],[451,345],[292,380]]],["A1","A14",[[509,90],[509,90],[571.1,120],[578,150]]],["A14","A15",[[562,200],[562,230],[562,258.8],[562,282.7],[562,306.7],[562,325.8],[562,354.6],[562,383.3],[562,421.7],[562,451.2],[562,480.7],[562,501.3],[562,522],[562,542.7],[562,563.3],[562,599.7],[562,636],[562,688],[562,723.3],[562,758.7],[562,777.3],[562,796],[562,814.7],[562,833.3],[562,850.2],[562,867],[562,882],[537,912]]],["A3","A16",[[384,200],[384,230],[384,250],[384,266.7],[384,283.3],[384,296.7],[384,312.1],[384,327.5],[384,345],[427,380]]],["A8","A16",[[455,310],[455,310],[464.9,345],[466,380]]],["A10","A16",[[649,310],[649,310],[577,345],[505,380]]],["A6","B1",[[1013,310],[1013,310],[1154.3,345],[1170,380]]],["A14","B2",[[594,200],[594,200],[1269.9,230],[1345,260]]],["B2","B3",[[1306,310],[1306,310],[714.7,345],[649,380]]],["A5","B4",[[1197,200],[1735,230],[1735,245],[1735,259.6],[1735,274.2],[1735,288.3],[1735,302.5],[1735,316.7],[1735,330.8],[1735,352.1],[1735,373.3],[1735,401.7],[1735,423.3],[1735,445],[1735,460],[1817,490]]],["A14","B5",[[625,200],[1603,230],[1603,245],[1603,259.6],[1603,274.2],[1603,288.3],[1603,302.5],[1603,316.7],[1603,330.8],[1603,352.1],[1603,373.3],[1603,401.7],[1603,423.3],[1603,445],[1603,460],[1644,490]]],["A14","B6",[[531,200],[205,230],[205,245],[205,259.6],[205,274.2],[205,288.3],[205,302.5],[205,316.7],[205,330.8],[205,357.1],[205,383.3],[205,421.7],[205,451.2],[205,480.7],[205,501.3],[205,522],[205,542.7],[205,563.3],[205,599.7],[205,636],[205,688],[205,725.8],[205,763.7],[205,787.3],[205,811],[205,834.7],[205,858.3],[205,897.7],[205,937],[205,992],[205,1022]]],["A5","B7",[[1171,200],[1171,200],[1171,230],[1171,260]]],["A8","C2",[[518,310],[518,310],[769.1,345],[797,380]]],["C1","C2",[[823,310],[823,310],[825.6,345],[849,380]]],["C2","C3",[[823,430],[823,430],[823,460],[823,490]]],["A7","C3",[[997,430],[997,430],[984.8,460],[875,490]]],["C2","C4",[[862,430],[862,430],[983.5,460],[997,490]]],["B1","C4",[[1131,430],[1131,430],[1057.2,460],[1049,490]]],["C2","C5",[[784,430],[784,430],[709.3,460],[701,490]]],["B3","C5",[[649,430],[649,430],[649,460],[649,490]]],["C5","C6",[[727,540],[727,540],[1024,584],[1057,628]]],["B7","C6",[[1171,310],[1083,345],[1083,362.5],[1083,375.4],[1083,388.3],[1083,396.7],[1083,405],[1083,413.3],[1083,421.7],[1083,431.3],[1083,441],[1083,452],[1087.3,457.5],[1091.7,463],[1100.3,463],[1104.7,467.5],[1109,472],[1109,481],[1109,509],[1109,537],[1109,584],[1109,628]]],["C3","C7",[[849,540],[849,540],[874.2,584],[877,628]]],["C4","C7",[[1023,540],[1023,540],[938.4,584],[929,628]]],["C6","C8",[[1083,678],[1083,678],[1068.6,740],[939,802]]],["C7","C8",[[942,678],[942,678],[892.5,740],[887,802]]],["C8","C9",[[913,852],[913,852],[1024,882],[1135,912]]],["C9","C10",[[1135,962],[1135,962],[1135,992],[1135,1022]]],["C5","C11",[[701,540],[816,584],[816,606],[816,621.2],[816,636.3],[816,644.7],[816,653],[816,661.3],[816,669.7],[816,680.2],[816,690.7],[816,703.3],[816.8,709.7],[817.7,716],[819.3,716],[820.2,730.3],[821,744.7],[821,773.3],[821,796],[821,818.7],[821,835.3],[821,851.2],[821,867],[821,882],[935,912]]],["C7","C11",[[923,678],[826,740],[826,771],[826,790.7],[826,810.3],[826,818.7],[826,827],[826,835.3],[826,843.7],[826,855.3],[826,867],[826,882],[987,912]]],["C5","C12",[[649,540],[649,584],[649,607.5],[649,627.1],[649,646.7],[649,662.3],[649,685.7],[649,709],[649,740],[699,802]]],["C7","C12",[[884,678],[884,678],[764.3,740],[751,802]]],["A12","C13",[[1761,678],[1761,678],[1749.6,740],[1647,802]]],["C3","C13",[[888,540],[1348,584],[1348,606],[1348,621.2],[1348,636.3],[1348,644.7],[1348,653],[1348,661.3],[1348,669.7],[1348,689.3],[1348,709],[1348,740],[1569,802]]],["C4","C13",[[1062,540],[1353,584],[1353,606],[1353,621.2],[1353,636.3],[1353,644.7],[1353,653],[1353,661.3],[1353,669.7],[1353,689.3],[1353,709],[1353,740],[1608,802]]],["A1","D2",[[543,90],[1517,120],[1517,135],[1517,149.2],[1517,163.3],[1517,176.7],[1517,190],[1517,203.3],[1517,216.7],[1517,252.1],[1517,287.5],[1517,345],[1517,380]]],["D2","D3",[[1478,430],[1478,430],[1314.2,460],[1296,490]]],["D1","D4",[[1343,430],[1343,430],[1353.1,460],[1444,490]]],["D2","D4",[[1517,430],[1517,430],[1498.1,460],[1496,490]]],["D3","D5",[[1296,540],[1296,540],[1368,584],[1440,628]]],["A5","D6",[[1223,200],[2017,230],[2017,245],[2017,259.6],[2017,274.2],[2017,288.3],[2017,302.5],[2017,316.7],[2017,330.8],[2017,366.7],[2017,402.5],[2017,460],[2017,490]]],["D2","D6",[[1556,430],[1556,430],[1924.1,460],[1965,490]]],["D4","D7",[[1529,540],[1529,540],[2206.7,584],[2282,628]]],["D6","D7",[[2030,540],[2030,540],[2303.6,584],[2334,628]]],["D4","D8",[[1490,540],[1490,540],[1878.8,584],[1922,628]]],["D6","D8",[[1991,540],[1991,540],[1995.5,584],[2000,628]]],["B4","D8",[[1817,540],[1817,540],[1831.4,584],[1961,628]]],["D4","D9",[[1470,540],[1470,540],[1563.6,584],[1574,628]]],["D6","D9",[[1952,540],[1952,540],[1802,584],[1652,628]]],["B2","D9",[[1384,310],[1730,345],[1730,362.5],[1730,377.9],[1730,393.3],[1730,406.7],[1730,420],[1730,433.3],[1730,446.7],[1730,466.7],[1730,486.7],[1730,513.3],[1730,537.7],[1730,562],[1730,584],[1613,628]]],["D4","D10",[[1451,540],[1451,540],[1316,584],[1301,628]]],["B1","D10",[[1209,430],[1209,460],[1209,480],[1209,496.7],[1209,513.3],[1209,526.7],[1209,544.3],[1209,562],[1209,584],[1262,628]]],["B2","D10",[[1345,310],[1256,345],[1256,362.5],[1256,375.4],[1256,388.3],[1256,396.7],[1256,405],[1256,413.3],[1256,421.7],[1256,430.3],[1256,439],[1256,448],[1247.3,452.5],[1238.7,457],[1221.3,457],[1212.7,462.5],[1204,468],[1204,479],[1204,492.8],[1204,506.7],[1204,523.3],[1204,542.7],[1204,562],[1204,584],[1223,628]]],["B5","D11",[[1644,540],[1526,584],[1526,606],[1526,621.2],[1526,636.3],[1526,644.7],[1526,653],[1526,661.3],[1526,669.7],[1526,689.3],[1526,709],[1526,740],[1766,802]]],["D8","D11",[[1945,678],[1945,678],[1887,740],[1829,802]]],["D9","D11",[[1602,678],[1602,678],[1778.4,740],[1798,802]]],["D10","D11",[[1288,678],[1288,678],[1332.7,740],[1735,802]]],["D5","D12",[[1440,678],[1521,740],[1521,771],[1521,793.2],[1521,815.3],[1521,828.7],[1521,845.3],[1521,862],[1521,882],[1521,912]]],["D11","D12",[[1756,852],[1756,852],[1664.5,882],[1573,912]]],["D5","D13",[[1388,678],[1388,678],[1117.1,740],[1087,802]]],["D9","D13",[[1557,678],[1557,678],[1169.1,740],[1126,802]]],["D10","D13",[[1236,678],[1236,678],[1217.2,740],[1048,802]]],["D5","D14",[[1466,678],[1466,678],[1871.9,740],[1917,802]]],["D8","D14",[[1977,678],[1977,678],[1993.2,740],[1995,802]]],["D9","D14",[[1624,678],[1624,678],[1922.8,740],[1956,802]]],["D14","D15",[[1956,852],[1925,882],[1925,897],[1925,911.2],[1925,925.3],[1925,938.7],[1925,955.3],[1925,972],[1925,992],[1925,1022]]],["D8","D16",[[1914,678],[1914,678],[1506.3,740],[1461,802]]],["D9","D16",[[1580,678],[1580,678],[1426.1,740],[1409,802]]],["D12","D17",[[1573,962],[1573,962],[1633.5,992],[1694,1022]]],["D13","D17",[[1113,852],[1638,882],[1638,897],[1638,908.7],[1638,920.3],[1638,928.7],[1638,937],[1638,945.3],[1638,953.7],[1638,965.3],[1638,977],[1638,992],[1746,1022]]],["C5","D18",[[675,540],[811,584],[811,606],[811,626.3],[811,646.7],[811,665.3],[811,684],[811,702.7],[811,721.3],[811,754.3],[811,787.3],[811,834.7],[811,867.5],[811,900.3],[811,918.7],[811,941.6],[811,964.5],[811,992],[811,1022]]],["C7","D18",[[903,678],[816,740],[816,771],[816,793.2],[816,815.3],[816,828.7],[816,842],[816,855.3],[816,868.7],[816,888.7],[816,908.7],[816,935.3],[816,956.2],[816,977],[816,992],[842,1022]]],["D12","D18",[[1521,962],[1521,962],[1459.4,992],[905,1022]]],["D13","D18",[[1061,852],[874,882],[874,897],[874,911.2],[874,925.3],[874,938.7],[874,955.3],[874,972],[874,992],[874,1022]]],["B1","D19",[[1170,430],[1170,460],[1170,491],[1170,516.8],[1170,542.7],[1170,563.3],[1170,589.3],[1170,615.3],[1170,646.7],[1170,677.8],[1170,709],[1170,740],[1222,802]]],["D4","D19",[[1431,540],[1175,584],[1175,606],[1175,621.2],[1175,636.3],[1175,644.7],[1175,653],[1175,661.3],[1175,669.7],[1175,689.3],[1175,709],[1175,740],[1261,802]]],["D5","D19",[[1414,678],[1414,678],[1311.4,740],[1300,802]]],["D5","D20",[[1492,678],[1492,678],[2355.1,740],[2451,802]]],["D9","D20",[[1669,678],[1669,678],[2419.6,740],[2503,802]]],["D20","D21",[[2477,852],[2395,882],[2395,897],[2395,911.2],[2395,925.3],[2395,938.7],[2395,952],[2395,965.3],[2395,978.7],[2395,1004.5],[2395,1030.3],[2395,1068.7],[2395,1097.4],[2395,1126.2],[2395,1145.3],[2395,1164.5],[2395,1183.7],[2395,1202.8],[2395,1230.8],[2395,1258.7],[2395,1295.3],[2395,1322.8],[2395,1350.3],[2395,1368.7],[2395,1387],[2395,1405.3],[2395,1423.7],[2395,1451.2],[2395,1478.7],[2395,1515.3],[2395,1540.3],[2395,1565.3],[2395,1578.7],[2395,1592],[2395,1605.3],[2395,1618.7],[2395,1633.3],[2395,1648],[2395,1664],[2140,1696]]],["A12","D22",[[1813,678],[1813,678],[1958.5,740],[2104,802]]],["D4","D22",[[1509,540],[2047,584],[2047,606],[2047,621.2],[2047,636.3],[2047,644.7],[2047,653],[2047,661.3],[2047,669.7],[2047,689.3],[2047,709],[2047,740],[2156,802]]],["C7","D23",[[962,678],[2563,740],[2563,771],[2563,790.7],[2563,810.3],[2563,818.7],[2563,827],[2563,835.3],[2563,843.7],[2563,855.3],[2563,867],[2563,882],[2508,912]]],["D11","D23",[[1808,852],[1808,852],[2132,882],[2456,912]]],["C3","E1",[[810,540],[810,540],[638,584],[466,628]]],["C4","E1",[[984,540],[984,540],[744.5,584],[505,628]]],["C5","E1",[[623,540],[623,540],[446.6,584],[427,628]]],["C7","E2",[[864,678],[638,740],[638,771],[638,790.7],[638,810.3],[638,818.7],[638,827],[638,835.3],[638,843.7],[638,851.3],[638,859],[638,866],[651.7,869.5],[665.3,873],[692.7,873],[706.3,879.5],[720,886],[720,899],[720,918.8],[720,938.7],[720,965.3],[720,985.3],[720,1005.3],[720,1018.7],[720,1032],[720,1045.3],[720,1058.7],[720,1072.7],[720,1086.7],[720,1101.3],[733.5,1108.7],[747,1116],[774,1116],[787.5,1120.3],[801,1124.7],[801,1133.3],[801,1151],[801,1168.7],[801,1195.3],[801,1215.3],[801,1235.3],[801,1248.7],[801,1262],[801,1275.3],[801,1288.7],[801,1302.8],[801,1317],[801,1332],[883,1362]]],["C7","E3",[[845,678],[628,740],[628,771],[628,793.2],[628,815.3],[628,828.7],[628,842],[628,855.3],[628,868.7],[628,893.7],[628,918.7],[628,955.3],[628,980.3],[628,1005.3],[628,1018.7],[628,1032],[628,1045.3],[628,1058.7],[628,1074.1],[628,1089.5],[628,1107],[684,1142]]],["D4","E3",[[1412,540],[633,584],[633,606],[633,626.3],[633,646.7],[633,665.3],[633,684],[633,702.7],[633,721.3],[633,754.3],[633,787.3],[633,834.7],[633,867.5],[633,900.3],[633,918.7],[633,937],[633,955.3],[633,973.7],[633,996.2],[633,1018.7],[633,1045.3],[633,1067.4],[633,1089.5],[633,1107],[736,1142]]],["E1","E4",[[440,678],[369,740],[369,771],[369,793.2],[369,815.3],[369,828.7],[369,842],[369,855.3],[369,868.7],[369,893.7],[369,918.7],[369,955.3],[369,983.3],[369,1011.2],[369,1030.3],[369,1049.5],[369,1068.7],[369,1087.8],[369,1111.6],[369,1135.3],[369,1163.7],[369,1185.3],[369,1207],[369,1222],[288,1252]]],["D7","E5",[[2308,678],[2308,678],[2311.5,740],[2343,802]]],["D8","E5",[[2008,678],[2008,678],[2274.4,740],[2304,802]]],["D9","E5",[[1646,678],[1646,678],[2203.1,740],[2265,802]]],["E5","E6",[[2278,852],[1838,882],[1838,897],[1838,911.2],[1838,925.3],[1838,938.7],[1838,952],[1838,965.3],[1838,978.7],[1838,1014.1],[1838,1049.5],[1838,1107],[1838,1142]]],["D15","E6",[[1925,1072],[1925,1072],[1919.4,1107],[1869,1142]]],["D16","E6",[[1461,852],[1806,882],[1806,897],[1806,911.2],[1806,925.3],[1806,938.7],[1806,952],[1806,965.3],[1806,978.7],[1806,1014.1],[1806,1049.5],[1806,1107],[1806,1142]]],["D17","E6",[[1720,1072],[1720,1072],[1725.5,1107],[1775,1142]]],["D18","E7",[[819,1072],[796,1107],[796,1124.5],[796,1139.9],[796,1155.3],[796,1168.7],[796,1182],[796,1195.3],[796,1208.7],[796,1233.7],[796,1258.7],[796,1295.3],[796,1320.3],[796,1345.3],[796,1358.7],[796,1372],[796,1385.3],[796,1398.7],[796,1412.8],[796,1427],[796,1442],[831,1472]]],["E2","E7",[[883,1412],[883,1412],[883,1442],[883,1472]]],["E1","E8",[[492,678],[623,740],[623,771],[623,793.2],[623,815.3],[623,828.7],[623,842],[623,855.3],[623,868.7],[623,893.7],[623,918.7],[623,955.3],[623,983.3],[623,1011.2],[623,1030.3],[623,1049.5],[623,1068.7],[623,1087.8],[623,1111.6],[623,1135.3],[623,1163.7],[623,1182.3],[623,1201],[623,1210],[640.2,1214.5],[657.3,1219],[691.7,1219],[708.8,1224.5],[726,1230],[726,1241],[726,1253.2],[726,1265.3],[726,1278.7],[726,1292],[726,1305.3],[726,1318.7],[726,1343.7],[726,1368.7],[726,1405.3],[726,1430.3],[726,1455.3],[726,1468.7],[726,1482],[726,1495.3],[726,1508.7],[726,1522.8],[726,1537],[726,1552],[818,1582]]],["E7","E8",[[831,1522],[831,1522],[850.5,1552],[870,1582]]],["D17","E9",[[1759,1072],[2021,1107],[2021,1124.5],[2021,1139.9],[2021,1155.3],[2021,1168.7],[2021,1182],[2021,1195.3],[2021,1208.7],[2021,1233.7],[2021,1258.7],[2021,1295.3],[2021,1320.3],[2021,1345.3],[2021,1358.7],[2021,1372],[2021,1385.3],[2021,1398.7],[2021,1412.8],[2021,1427],[2021,1442],[1966,1472]]],["E2","E9",[[922,1412],[922,1412],[1814.8,1442],[1914,1472]]],["D18","E10",[[897,1072],[1271,1107],[1271,1124.5],[1271,1137.4],[1271,1150.3],[1271,1158.7],[1271,1167],[1271,1175.3],[1271,1183.7],[1271,1195.3],[1271,1207],[1271,1222],[1592,1252]]],["E6","E10",[[1806,1192],[1806,1192],[1660.2,1222],[1644,1252]]],["C11","E11",[[987,962],[1266,992],[1266,1007],[1266,1021.6],[1266,1036.2],[1266,1050.3],[1266,1064.5],[1266,1078.7],[1266,1092.8],[1266,1119.1],[1266,1145.3],[1266,1183.7],[1266,1212],[1266,1240.3],[1266,1258.7],[1266,1277],[1266,1295.3],[1266,1313.7],[1266,1336.2],[1266,1358.7],[1266,1385.3],[1266,1406.2],[1266,1427],[1266,1442],[1479,1472]]],["E6","E11",[[1775,1192],[1531,1222],[1531,1237],[1531,1251.2],[1531,1265.3],[1531,1278.7],[1531,1292],[1531,1305.3],[1531,1318.7],[1531,1352.8],[1531,1387],[1531,1442],[1531,1472]]],["E6","E12",[[1869,1192],[1869,1192],[2143.5,1222],[2174,1252]]],["E20","E12",[[2304,1192],[2304,1192],[2296.2,1222],[2226,1252]]],["E11","E13",[[1466,1522],[1466,1522],[1344.5,1552],[1331,1582]]],["E9","E14",[[1940,1522],[1940,1522],[1896,1552],[1852,1582]]],["E11","E15",[[1505,1522],[1505,1522],[1505,1552],[1505,1582]]],["E6","E16",[[1838,1192],[2026,1222],[2026,1237],[2026,1251.2],[2026,1265.3],[2026,1278.7],[2026,1292],[2026,1305.3],[2026,1318.7],[2026,1343.7],[2026,1368.7],[2026,1405.3],[2026,1432.8],[2026,1460.3],[2026,1478.7],[2026,1501.6],[2026,1524.5],[2026,1552],[2026,1582]]],["E12","E17",[[2200,1302],[2200,1332],[2200,1359.5],[2200,1382.4],[2200,1405.3],[2200,1423.7],[2200,1460.3],[2200,1497],[2200,1552],[2200,1582]]],["E10","E18",[[1618,1302],[1618,1332],[1618,1359.5],[1618,1382.4],[1618,1405.3],[1618,1423.7],[1618,1446.2],[1618,1468.7],[1618,1495.3],[1618,1516.2],[1618,1537],[1618,1552],[1705,1582]]],["E11","E18",[[1544,1522],[1544,1522],[1642.1,1552],[1653,1582]]],["E3","E19",[[736,1192],[1083,1222],[1083,1237],[1083,1251.2],[1083,1265.3],[1083,1278.7],[1083,1295.3],[1083,1312],[1083,1332],[1083,1362]]],["F1","E19",[[513,1302],[513,1302],[979.2,1332],[1031,1362]]],["D15","E20",[[1964,1072],[1964,1072],[2246.6,1107],[2278,1142]]],["E5","E20",[[2330,852],[2330,882],[2330,909.5],[2330,932.4],[2330,955.3],[2330,973.7],[2330,1011.6],[2330,1049.5],[2330,1107],[2330,1142]]],["E7","E21",[[883,1522],[883,1522],[896.5,1552],[1018,1582]]],["E19","E21",[[1057,1412],[1057,1442],[1057,1469.5],[1057,1497],[1057,1524.5],[1057,1552],[1057,1582]]],["G4","E21",[[600,1522],[600,1522],[789.5,1552],[979,1582]]],["A5","F1",[[1119,200],[557,230],[557,245],[557,259.6],[557,274.2],[557,288.3],[557,302.5],[557,316.7],[557,330.8],[557,357.1],[557,383.3],[557,421.7],[557,451.2],[557,480.7],[557,501.3],[557,522],[557,542.7],[557,563.3],[557,589.3],[557,615.3],[557,646.7],[557,664.7],[557,682.7],[557,687.3],[539.2,689.7],[521.3,692],[485.7,692],[467.8,710.3],[450,728.7],[450,765.3],[450,790.3],[450,815.3],[450,828.7],[450,842],[450,855.3],[450,868.7],[450,893.7],[450,918.7],[450,955.3],[450,983.2],[450,1011.2],[450,1030.3],[450,1049.5],[450,1068.7],[450,1087.8],[450,1111.6],[450,1135.3],[450,1163.7],[450,1185.3],[450,1207],[450,1222],[492,1252]]],["A8","F1",[[487,310],[552,345],[552,362.5],[552,377.9],[552,393.3],[552,406.7],[552,420],[552,433.3],[552,446.7],[552,474],[552,501.3],[552,542.7],[552,571.2],[552,599.7],[552,615.3],[552,631],[552,646.7],[552,662.3],[552,673.5],[552,684.7],[552,691.3],[534.2,694.7],[516.3,698],[480.7,698],[462.8,715.3],[445,732.7],[445,767.3],[445,798],[445,828.7],[445,855.3],[445,877.8],[445,900.3],[445,918.7],[445,937],[445,955.3],[445,973.7],[445,1002],[445,1030.3],[445,1068.7],[445,1094.9],[445,1121.2],[445,1135.3],[445,1149.5],[445,1163.7],[445,1177.8],[445,1192.4],[445,1207],[445,1222],[440,1252]]],["F1","F2",[[450,1302],[369,1332],[369,1347],[369,1358.7],[369,1370.3],[369,1378.7],[369,1387],[369,1395.3],[369,1403.7],[369,1415.3],[369,1427],[369,1442],[288,1472]]],["F2","F3",[[249,1522],[235,1552],[235,1567],[235,1581.3],[235,1595.7],[235,1609.3],[235,1623],[235,1636.7],[235,1650.3],[235,1670.8],[235,1691.3],[235,1718.7],[235,1739.8],[235,1761],[235,1776],[292,1806]]],["B6","F4",[[205,1072],[201,1107],[201,1124.5],[201,1139.9],[201,1155.3],[201,1168.7],[201,1182],[201,1195.3],[201,1208.7],[201,1242.8],[201,1277],[201,1332],[201,1362]]],["E4","F4",[[262,1302],[262,1302],[259.8,1332],[240,1362]]],["F1","F4",[[419,1302],[419,1302],[293,1332],[279,1362]]],["F2","F5",[[288,1522],[288,1522],[342,1552],[348,1582]]],["F4","F5",[[240,1412],[201,1442],[201,1457],[201,1468.7],[201,1480.3],[201,1488.7],[201,1497],[201,1505.3],[201,1513.7],[201,1525.3],[201,1537],[201,1552],[296,1582]]],["F5","F6",[[322,1632],[813,1664],[813,1680],[813,1694.7],[813,1709.3],[813,1722.7],[813,1736],[813,1749.3],[813,1762.7],[813,1782.7],[813,1802.7],[813,1829.3],[813,1850.2],[813,1871],[813,1886],[1594,1916]]],["G8","F6",[[1646,1856],[1646,1856],[1646,1886],[1646,1916]]],["F3","F7",[[292,1856],[292,1856],[404.8,1886],[1420,1916]]],["G8","F7",[[1620,1856],[1620,1856],[1486.8,1886],[1472,1916]]],["F7","F8",[[1446,1966],[1446,1966],[1446,1996],[1446,2026]]],["C10","G1",[[1135,1072],[1135,1072],[1138.6,1107],[1171,1142]]],["C11","G1",[[935,962],[771,992],[771,1007],[771,1018.7],[771,1030.3],[771,1038.7],[771,1047],[771,1055.3],[771,1063.7],[771,1076.6],[771,1089.5],[771,1107],[1137,1142]]],["C12","G1",[[725,852],[725,882],[725,909.5],[725,932.4],[725,955.3],[725,973.7],[725,996.2],[725,1018.7],[725,1045.3],[725,1067.4],[725,1089.5],[725,1107],[1119,1142]]],["D15","G1",[[1886,1072],[1886,1072],[1821.5,1107],[1241,1142]]],["D16","G1",[[1409,852],[1256,882],[1256,897],[1256,911.2],[1256,925.3],[1256,938.7],[1256,952],[1256,965.3],[1256,978.7],[1256,998.7],[1256,1018.7],[1256,1045.3],[1256,1067.4],[1256,1089.5],[1256,1107],[1189,1142]]],["D17","G1",[[1681,1072],[1681,1072],[1635.2,1107],[1223,1142]]],["D18","G1",[[858,1072],[858,1072],[887.6,1107],[1154,1142]]],["D19","G1",[[1261,852],[1261,882],[1261,909.5],[1261,932.4],[1261,955.3],[1261,973.7],[1261,996.2],[1261,1018.7],[1261,1045.3],[1261,1067.4],[1261,1089.5],[1261,1107],[1206,1142]]],["A15","G2",[[537,962],[537,992],[537,1020.8],[537,1044.7],[537,1068.7],[537,1087.8],[537,1111.6],[537,1135.3],[537,1163.7],[537,1185.3],[537,1207],[537,1222],[601,1252]]],["E3","G2",[[684,1192],[684,1192],[679.6,1222],[640,1252]]],["G1","G2",[[1154,1192],[1154,1192],[1106.5,1222],[679,1252]]],["A16","G3",[[466,430],[379,460],[379,475],[379,490.3],[379,505.7],[379,521.3],[379,537],[379,552.7],[379,568.3],[379,602.2],[379,636],[379,688],[379,725.8],[379,763.7],[379,787.3],[379,811],[379,834.7],[379,858.3],[379,888.5],[379,918.7],[379,955.3],[379,983.3],[379,1011.2],[379,1030.3],[379,1049.5],[379,1068.7],[379,1087.8],[379,1116.6],[379,1145.3],[379,1183.7],[379,1209.5],[379,1235.3],[379,1248.7],[379,1262],[379,1275.3],[379,1288.7],[379,1302.8],[379,1317],[379,1332],[443,1362]]],["F1","G3",[[482,1302],[482,1302],[482,1332],[482,1362]]],["G2","G3",[[640,1302],[640,1302],[628.1,1332],[521,1362]]],["E2","G4",[[844,1412],[844,1412],[722,1442],[600,1472]]],["E4","G4",[[314,1302],[379,1332],[379,1347],[379,1358.7],[379,1370.3],[379,1378.7],[379,1387],[379,1395.3],[379,1403.7],[379,1415.3],[379,1427],[379,1442],[522,1472]]],["G3","G4",[[482,1412],[482,1412],[489.9,1442],[561,1472]]],["F2","G5",[[327,1522],[327,1522],[612.3,1552],[644,1582]]],["G4","G5",[[561,1522],[561,1522],[682.5,1552],[696,1582]]],["A13","G6",[[292,430],[374,460],[374,475],[374,490.3],[374,505.7],[374,521.3],[374,537],[374,552.7],[374,568.3],[374,602.2],[374,636],[374,688],[374,725.8],[374,763.7],[374,787.3],[374,811],[374,834.7],[374,858.3],[374,888.5],[374,918.7],[374,955.3],[374,983.3],[374,1011.2],[374,1030.3],[374,1049.5],[374,1068.7],[374,1087.8],[374,1116.6],[374,1145.3],[374,1183.7],[374,1212],[374,1240.3],[374,1258.7],[374,1277],[374,1295.3],[374,1313.7],[374,1341.2],[374,1368.7],[374,1405.3],[374,1430.3],[374,1455.3],[374,1468.7],[374,1482],[374,1495.3],[374,1508.7],[374,1522.8],[374,1537],[374,1552],[470,1582]]],["G4","G6",[[522,1522],[522,1522],[522,1552],[522,1582]]],["G5","G7",[[670,1632],[670,1632],[696.1,1664],[931,1696]]],["G6","G7",[[522,1632],[522,1632],[700.5,1664],[879,1696]]],["D21","G8",[[2140,1746],[2140,1746],[2095.6,1776],[1696,1806]]],["E8","G8",[[818,1632],[818,1664],[818,1684.5],[818,1701.6],[818,1718.7],[818,1732.3],[818,1746.7],[818,1761],[818,1776],[1582,1806]]],["E13","G8",[[1305,1632],[1469,1664],[1469,1680],[1469,1692.2],[1469,1704.3],[1469,1712.7],[1469,1721],[1469,1729.3],[1469,1737.7],[1469,1749.3],[1469,1761],[1469,1776],[1611,1806]]],["E14","G8",[[1878,1632],[1842,1664],[1842,1680],[1842,1692.2],[1842,1704.3],[1842,1712.7],[1842,1721],[1842,1729.3],[1842,1737.7],[1842,1749.3],[1842,1761],[1842,1776],[1667,1806]]],["E15","G8",[[1479,1632],[1479,1664],[1479,1684.5],[1479,1701.6],[1479,1718.7],[1479,1732.3],[1479,1746.7],[1479,1761],[1479,1776],[1639,1806]]],["E16","G8",[[2052,1632],[1847,1664],[1847,1680],[1847,1692.2],[1847,1704.3],[1847,1712.7],[1847,1721],[1847,1729.3],[1847,1737.7],[1847,1749.3],[1847,1761],[1847,1776],[1681,1806]]],["E17","G8",[[2226,1632],[2226,1664],[2226,1684.5],[2226,1701.6],[2226,1718.7],[2226,1732.3],[2226,1746.7],[2226,1761],[2226,1776],[1710,1806]]],["E18","G8",[[1653,1632],[1653,1664],[1653,1692],[1653,1720],[1653,1748],[1653,1776],[1653,1806]]],["E21","G8",[[1018,1632],[1474,1664],[1474,1680],[1474,1692.2],[1474,1704.3],[1474,1712.7],[1474,1721],[1474,1729.3],[1474,1737.7],[1474,1749.3],[1474,1761],[1474,1776],[1625,1806]]],["G7","G8",[[905,1746],[905,1746],[974.1,1776],[1596,1806]]],["F6","G9",[[1646,1966],[1646,1966],[1779.2,1996],[1794,2026]]],["G9","G10",[[1794,2076],[1794,2076],[1794,2106],[1794,2136]]],["D23","H1",[[2482,962],[2482,992],[2482,1020.7],[2482,1044.7],[2482,1068.7],[2482,1087.8],[2482,1116.6],[2482,1145.3],[2482,1183.7],[2482,1212],[2482,1240.3],[2482,1258.7],[2482,1277],[2482,1295.3],[2482,1313.7],[2482,1341.2],[2482,1368.7],[2482,1405.3],[2482,1432.8],[2482,1460.3],[2482,1478.7],[2482,1497],[2482,1515.3],[2482,1533.7],[2482,1561.5],[2482,1589.3],[2482,1626.7],[2482,1654.7],[2482,1682.7],[2482,1701.3],[2482,1720],[2482,1738.7],[2482,1757.3],[2482,1794.2],[2482,1831],[2482,1886],[2482,1916]]],["G8","H1",[[1672,1856],[1672,1856],[2354.2,1886],[2430,1916]]],["H1","H2",[[2508,1966],[2508,1966],[2773.5,1996],[2803,2026]]],["H1","H3",[[2430,1966],[2430,1966],[2296.8,1996],[2282,2026]]],["A9","H4",[[2243,430],[2568,460],[2568,475],[2568,490.3],[2568,505.7],[2568,521.3],[2568,537],[2568,552.7],[2568,568.3],[2568,602.2],[2568,636],[2568,688],[2568,725.8],[2568,763.7],[2568,787.3],[2568,811],[2568,834.7],[2568,858.3],[2568,888.5],[2568,918.7],[2568,955.3],[2568,983.3],[2568,1011.2],[2568,1030.3],[2568,1049.5],[2568,1068.7],[2568,1087.8],[2568,1116.6],[2568,1145.3],[2568,1183.7],[2568,1212],[2568,1240.3],[2568,1258.7],[2568,1277],[2568,1295.3],[2568,1313.7],[2568,1336.2],[2568,1358.7],[2568,1385.3],[2568,1403.2],[2568,1421],[2568,1430],[2563.7,1434.5],[2559.3,1439],[2550.7,1439],[2546.3,1444.5],[2542,1450],[2542,1461],[2542,1473.2],[2542,1485.3],[2542,1498.7],[2542,1512],[2542,1525.3],[2542,1538.7],[2542,1564],[2542,1589.3],[2542,1626.7],[2542,1654.7],[2542,1682.7],[2542,1701.3],[2542,1720],[2542,1738.7],[2542,1757.3],[2542,1785],[2542,1812.7],[2542,1849.3],[2542,1876.8],[2542,1904.3],[2542,1922.7],[2542,1941],[2542,1959.3],[2542,1977.7],[2542,2014.3],[2542,2051],[2542,2106],[2542,2136]]],["H3","H4",[[2282,2076],[2282,2076],[2302.8,2106],[2490,2136]]],["H4","H5",[[2516,2186],[2516,2186],[2516,2216],[2516,2246]]],["H1","H6",[[2456,1966],[2456,1966],[2456,1996],[2456,2026]]],["H1","H7",[[2482,1966],[2482,1966],[2614.3,1996],[2629,2026]]],["G8","I1",[[1698,1856],[1698,1856],[2697,1886],[2808,1916]]],["H1","I2",[[2404,1966],[2404,1966],[1228.6,1996],[1098,2026]]],["H2","I3",[[2803,2076],[2803,2076],[2803,2106],[2803,2136]]],["I1","I3",[[2808,1966],[2889,1996],[2889,2011],[2889,2022.7],[2889,2034.3],[2889,2042.7],[2889,2051],[2889,2059.3],[2889,2067.7],[2889,2079.3],[2889,2091],[2889,2106],[2842,2136]]],["I2","I3",[[1137,2076],[1137,2076],[1950.5,2106],[2764,2136]]],["I2","I4",[[1059,2076],[1059,2076],[933.9,2106],[920,2136]]],["I2","I5",[[1098,2076],[1006,2106],[1006,2121],[1006,2135.2],[1006,2149.3],[1006,2162.7],[1006,2176],[1006,2189.3],[1006,2202.7],[1006,2222.7],[1006,2242.7],[1006,2269.3],[1006,2290.2],[1006,2311],[1006,2326],[1094,2356]]],["I4","I6",[[920,2186],[920,2186],[920,2216],[920,2246]]],["I6","I7",[[920,2296],[920,2296],[920,2326],[920,2356]]],["I3","I8",[[2803,2186],[2803,2216],[2803,2243.5],[2803,2266.4],[2803,2289.3],[2803,2307.7],[2803,2344.3],[2803,2381],[2803,2436],[2803,2466]]],["I5","I8",[[1094,2406],[1094,2406],[1261,2436],[2764,2466]]],["I7","I8",[[920,2406],[920,2406],[1100.5,2436],[2725,2466]]],["A4","J1",[[2508,200],[2508,230],[2508,258.8],[2508,282.7],[2508,306.7],[2508,325.8],[2508,354.6],[2508,383.3],[2508,421.7],[2508,451.2],[2508,480.7],[2508,501.3],[2508,527.2],[2508,553],[2508,584],[2508,628]]],["A11","J1",[[2204,540],[2204,540],[2430.8,584],[2456,628]]],["C13","J2",[[1608,852],[1633,882],[1633,897],[1633,911.2],[1633,925.3],[1633,938.7],[1633,952],[1633,965.3],[1633,978.7],[1633,1004.5],[1633,1030.3],[1633,1068.7],[1633,1094.9],[1633,1121.2],[1633,1135.3],[1633,1149.5],[1633,1163.7],[1633,1177.8],[1633,1192.4],[1633,1207],[1633,1222],[1776,1252]]],["D22","J2",[[2130,852],[2011,882],[2011,897],[2011,911.2],[2011,925.3],[2011,938.7],[2011,952],[2011,965.3],[2011,978.7],[2011,1004.5],[2011,1030.3],[2011,1068.7],[2011,1094.9],[2011,1121.2],[2011,1135.3],[2011,1149.5],[2011,1163.7],[2011,1177.8],[2011,1192.4],[2011,1207],[2011,1222],[1808,1252]]],["G1","J2",[[1206,1192],[1206,1192],[1259.9,1222],[1745,1252]]],["J1","J2",[[2482,678],[2390,740],[2390,771],[2390,790.7],[2390,810.3],[2390,818.7],[2390,827],[2390,835.3],[2390,843.7],[2390,851.3],[2390,859],[2390,866],[2379.2,869.5],[2368.3,873],[2346.7,873],[2335.8,879.5],[2325,886],[2325,899],[2325,918.8],[2325,938.7],[2325,965.3],[2325,985.3],[2325,1005.3],[2325,1018.7],[2325,1032],[2325,1045.3],[2325,1058.7],[2325,1068.7],[2325,1078.7],[2325,1085.3],[2273.5,1088.7],[2222,1092],[2119,1092],[2067.5,1100.3],[2016,1108.7],[2016,1125.3],[2016,1142],[2016,1158.7],[2016,1175.3],[2016,1191.2],[2016,1207],[2016,1222],[1839,1252]]],["E8","J3",[[870,1632],[870,1632],[952.5,1664],[1695,1696]]],["E13","J3",[[1357,1632],[1357,1632],[1392.6,1664],[1713,1696]]],["E14","J3",[[1826,1632],[1826,1632],[1821.6,1664],[1782,1696]]],["E15","J3",[[1531,1632],[1531,1632],[1550.9,1664],[1730,1696]]],["E16","J3",[[2000,1632],[2000,1632],[1979.9,1664],[1799,1696]]],["E17","J3",[[2174,1632],[2174,1632],[2138.3,1664],[1817,1696]]],["E18","J3",[[1705,1632],[1705,1632],[1709.2,1664],[1747,1696]]],["J2","J3",[[1792,1302],[1765,1332],[1765,1347],[1765,1361.2],[1765,1375.3],[1765,1388.7],[1765,1402],[1765,1415.3],[1765,1428.7],[1765,1453.7],[1765,1478.7],[1765,1515.3],[1765,1543],[1765,1570.7],[1765,1589.3],[1765,1612.7],[1765,1636],[1765,1664],[1765,1696]]],["G6","J4",[[470,1632],[470,1632],[470,1664],[470,1696]]],["J3","J5",[[1730,1746],[1730,1746],[1126,1776],[522,1806]]],["J4","J5",[[470,1746],[470,1746],[470,1776],[470,1806]]],["I8","J6",[[2764,2516],[2764,2516],[2771.8,2546],[2842,2576]]],["J3","J6",[[1782,1746],[2894,1776],[2894,1791],[2894,1805.2],[2894,1819.3],[2894,1832.7],[2894,1846],[2894,1859.3],[2894,1872.7],[2894,1897.7],[2894,1922.7],[2894,1959.3],[2894,1986.8],[2894,2014.3],[2894,2032.7],[2894,2051],[2894,2069.3],[2894,2087.7],[2894,2115.2],[2894,2142.7],[2894,2179.3],[2894,2206.8],[2894,2234.3],[2894,2252.7],[2894,2271],[2894,2289.3],[2894,2307.7],[2894,2335.2],[2894,2362.7],[2894,2399.3],[2894,2426.8],[2894,2454.3],[2894,2472.7],[2894,2495.6],[2894,2518.5],[2894,2546],[2894,2576]]],["G8","K1",[[1594,1856],[1594,1856],[1304.2,1886],[1272,1916]]],["F6","K2",[[1594,1966],[1594,1966],[1617.4,1996],[1620,2026]]],["K1","K3",[[1272,1966],[1272,1966],[1272,1996],[1272,2026]]],["K3","K4",[[1272,2076],[1272,2076],[1272,2106],[1272,2136]]],["A2","K5",[[118,1856],[1011,1886],[1011,1901],[1011,1915.2],[1011,1929.3],[1011,1942.7],[1011,1956],[1011,1969.3],[1011,1982.7],[1011,2007.7],[1011,2032.7],[1011,2069.3],[1011,2094.3],[1011,2119.3],[1011,2132.7],[1011,2146],[1011,2159.3],[1011,2172.7],[1011,2186.8],[1011,2201],[1011,2216],[1067,2246]]],["K4","K5",[[1272,2186],[1272,2186],[1256.7,2216],[1119,2246]]],["A11","K6",[[2165,540],[2165,540],[2137.1,584],[2134,628]]]],"milestones":[{"name":"Look a word up in an English book","when":"Aug 2026","adds":"A16","set":["A16","A3","A1","A8","A10"]},{"name":"Read Mollin’s exercises","adds":"A1–A16 B1–B2 C2–C7 D1–D10 E1–E5","set":["A16","A3","A1","A8","A10","A2","A4","A5","A6","A7","A9","A11","A12","A13","A14","A15","B1","B2","C2","C1","C3","C4","C5","B3","C6","B7","C7","D1","D2","D3","D4","D5","D6","D7","D8","B4","D9","D10","E1","E2","E3","E4","E5"]},{"name":"Read glossed Xenophon (Steadman Anabasis)","adds":"C8–C11 D11–D19 E6–E14 E20 F1 G1–G3","set":["A16","A3","A1","A8","A10","A2","A4","A5","A6","A7","A9","A11","A12","A13","A14","A15","B1","B2","C2","C1","C3","C4","C5","B3","C6","B7","C7","D1","D2","D3","D4","D5","D6","D7","D8","B4","D9","D10","E1","E2","E3","E4","E5","C8","C9","C10","C11","D11","B5","D12","D13","D14","D15","D16","D17","D18","D19","E6","E7","E8","E9","E10","E11","E12","E20","E13","E14","F1","G1","C12","G2","G3"]},{"name":"Read unglossed Xenophon (the Cyropaedia target)","note":"The gap between this milestone and the previous one is larger than it looks. That’s where most people stop.","adds":"D20–D21 E15–E19 E21 F2–F3 F6 G4–G9 H1 I2","set":["A16","A3","A1","A8","A10","A2","A4","A5","A6","A7","A9","A11","A12","A13","A14","A15","B1","B2","C2","C1","C3","C4","C5","B3","C6","B7","C7","D1","D2","D3","D4","D5","D6","D7","D8","B4","D9","D10","E1","E2","E3","E4","E5","C8","C9","C10","C11","D11","B5","D12","D13","D14","D15","D16","D17","D18","D19","E6","E7","E8","E9","E10","E11","E12","E20","E13","E14","F1","G1","C12","G2","G3","D20","D21","E15","E16","E17","E18","E19","E21","G4","F2","F3","F6","F5","F4","B6","G8","G7","G5","G6","G9","H1","D23","I2"]},{"name":"Read Herodotus","adds":"H2 I1 I3 F7","set":["A16","A3","A1","A8","A10","A2","A4","A5","A6","A7","A9","A11","A12","A13","A14","A15","B1","B2","C2","C1","C3","C4","C5","B3","C6","B7","C7","D1","D2","D3","D4","D5","D6","D7","D8","B4","D9","D10","E1","E2","E3","E4","E5","C8","C9","C10","C11","D11","B5","D12","D13","D14","D15","D16","D17","D18","D19","E6","E7","E8","E9","E10","E11","E12","E20","E13","E14","F1","G1","C12","G2","G3","D20","D21","E15","E16","E17","E18","E19","E21","G4","F2","F3","F6","F5","F4","B6","G8","G7","G5","G6","G9","H1","D23","I2","H2","I1","I3","F7"]},{"name":"Read Thucydides","adds":"I4 I6","set":["A16","A3","A1","A8","A10","A2","A4","A5","A6","A7","A9","A11","A12","A13","A14","A15","B1","B2","C2","C1","C3","C4","C5","B3","C6","B7","C7","D1","D2","D3","D4","D5","D6","D7","D8","B4","D9","D10","E1","E2","E3","E4","E5","C8","C9","C10","C11","D11","B5","D12","D13","D14","D15","D16","D17","D18","D19","E6","E7","E8","E9","E10","E11","E12","E20","E13","E14","F1","G1","C12","G2","G3","D20","D21","E15","E16","E17","E18","E19","E21","G4","F2","F3","F6","F5","F4","B6","G8","G7","G5","G6","G9","H1","D23","I2","H2","I1","I3","F7","I4","I6"]},{"name":"Read Aeschylus","adds":"H4 H5 K1–K3","set":["A16","A3","A1","A8","A10","A2","A4","A5","A6","A7","A9","A11","A12","A13","A14","A15","B1","B2","C2","C1","C3","C4","C5","B3","C6","B7","C7","D1","D2","D3","D4","D5","D6","D7","D8","B4","D9","D10","E1","E2","E3","E4","E5","C8","C9","C10","C11","D11","B5","D12","D13","D14","D15","D16","D17","D18","D19","E6","E7","E8","E9","E10","E11","E12","E20","E13","E14","F1","G1","C12","G2","G3","D20","D21","E15","E16","E17","E18","E19","E21","G4","F2","F3","F6","F5","F4","B6","G8","G7","G5","G6","G9","H1","D23","I2","H2","I1","I3","F7","I4","I6","H4","H3","H5","K1","K2","K3"]}],"strandEdges":[["A","B"],["A","C"],["B","C"],["B","D"],["A","D"],["C","E"],["D","E"],["A","F"],["B","F"],["C","G"],["D","G"],["E","G"],["F","G"],["G","H"],["G","I"],["H","I"],["E","J"],["G","J"],["I","K"]]};
+(() => {
+const $ = s => document.getElementById(s);
+const byId = {}, kids = {}, anc = {}, desc = {};
+const strandOf = {}; DATA.strands.forEach(s => strandOf[s.id] = s);
+DATA.nodes.forEach(n => { byId[n.id] = n; kids[n.id] = []; n.st = n.id[0]; });
+DATA.nodes.forEach(n => n.p.forEach(p => kids[p].push(n.id)));
+const A = id => anc[id] || (anc[id] = new Set(byId[id].p.flatMap(p => [p, ...A(p)])));
+const D = id => desc[id] || (desc[id] = new Set(kids[id].flatMap(k => [k, ...D(k)])));
+DATA.nodes.forEach(n => { A(n.id); D(n.id); });
+const EFFORT = { 1: ['●○○', 'hours'], 2: ['●●○', 'weeks'], 3: ['●●●', 'months'] };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cvar = id => `var(--s${id[0]})`;
+
+/* ---------- state ---------- */
+const KEY = 'agkg-mastered-v2';
+let mastered = new Set();
+try { const raw = localStorage.getItem(KEY); if (raw) JSON.parse(raw).forEach(id => byId[id] && mastered.add(id)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify([...mastered])); } catch (e) {} };
+let selected = null, hovered = null, filter = null; // filter: {type:'strand'|'milestone'|'search', set:Set, label}
+let view = 'overview', confirmReset = false;
+
+/* ---------- build graph ---------- */
+const svg = $('edges'), world = $('world'), nodesEl = $('nodes');
+svg.setAttribute('width', DATA.w); svg.setAttribute('height', DATA.h);
+svg.setAttribute('viewBox', `0 0 ${DATA.w} ${DATA.h}`);
+world.style.width = DATA.w + 'px'; world.style.height = DATA.h + 'px';
+function pathD(pts) {
+  const f = p => p[0] + ',' + p[1];
+  if (pts.length > 2 && (pts.length - 1) % 3 === 0) {
+    let d = 'M' + f(pts[0]);
+    for (let i = 1; i < pts.length; i += 3) d += 'C' + f(pts[i]) + ' ' + f(pts[i + 1]) + ' ' + f(pts[i + 2]);
+    return d;
+  }
+  if (pts.length === 2) { const [a, b] = pts, m = (a[1] + b[1]) / 2; return `M${f(a)}C${a[0]},${m} ${b[0]},${m} ${f(b)}`; }
+  let d = 'M' + f(pts[0]);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += `C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${f(p2)}`;
+  }
+  return d;
+}
+const edgeEls = DATA.edges.map(([a, b, pts]) => {
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', pathD(pts)); svg.appendChild(p);
+  return { a, b, el: p };
+});
+/* Strand overview: drawn over the tree, visible only when zoomed out */
+// Shared by test + page: place one label per strand near the median of its nodes, then push overlapping labels apart.
+function strandLabels(DATA, FS) {
+  const med = a => { a = [...a].sort((x, y) => x - y); const m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+  const L = DATA.strands.map(s => {
+    const ns = DATA.nodes.filter(n => n.id[0] === s.id);
+    const words = s.name.split(' ');
+    const lines = words.length > 1 ? [words[0], words.slice(1).join(' ')] : [s.name];
+    const w = Math.max(...lines.map(l => l.length)) * FS * 0.56 + FS * 0.6, h = lines.length * FS * 1.05 + FS * 0.4;
+    return { id: s.id, lines, x: med(ns.map(n => n.x)), y: med(ns.map(n => n.y)), w, h };
+  });
+  for (let it = 0; it < 400; it++) {
+    let moved = false;
+    for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+      const a = L[i], b = L[j];
+      const ox = (a.w + b.w) / 2 + 200 - Math.abs(a.x - b.x), oy = (a.h + b.h) / 2 + 150 - Math.abs(a.y - b.y);
+      if (ox > 0 && oy > 0) {
+        moved = true;
+        if (ox < oy * 1.6) { const d = (a.x < b.x ? -1 : 1) * ox / 2; a.x += d; b.x -= d; }
+        else { const d = (a.y < b.y ? -1 : 1) * oy / 2; a.y += d; b.y -= d; }
+      }
+    }
+    for (const l of L) { l.x = Math.max(l.w / 2, Math.min(DATA.w - l.w / 2, l.x)); l.y = Math.max(l.h / 2, Math.min(DATA.h - l.h / 2, l.y)); }
+    if (!moved) break;
+  }
+  return L;
+}
+
+
+(function drawStrandMap() {
+  const FS = 96, NS = 'http://www.w3.org/2000/svg', sm = $('strandmap');
+  sm.setAttribute('width', DATA.w); sm.setAttribute('height', DATA.h); sm.setAttribute('viewBox', `0 0 ${DATA.w} ${DATA.h}`);
+  const L = {}; strandLabels(DATA, FS).forEach(l => L[l.id] = l);
+  let out = `<defs><marker id="sArrow" viewBox="0 0 10 10" refX="7" refY="5" markerUnits="userSpaceOnUse" markerWidth="44" markerHeight="44" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z"/></marker></defs>`;
+  const exit = (l, dx, dy, pad) => Math.min((l.w / 2 + pad) / (Math.abs(dx) || 1e-9), (l.h / 2 + pad) / (Math.abs(dy) || 1e-9));
+  for (const [a, b] of DATA.strandEdges) {
+    const A = L[a], B = L[b], dx = B.x - A.x, dy = B.y - A.y;
+    const ta = exit(A, dx, dy, 10), tb = exit(B, dx, dy, 18);
+    if (ta + tb >= 1) continue;
+    out += `<line x1="${A.x + dx * ta}" y1="${A.y + dy * ta}" x2="${B.x - dx * tb}" y2="${B.y - dy * tb}" marker-end="url(#sArrow)"/>`;
+  }
+  for (const l of Object.values(L)) {
+    const top = l.y - (l.lines.length * FS * 1.05) / 2;
+    out += `<text class="sl" x="${l.x}" y="${top - FS * 0.12}" font-size="${FS * 0.36}" stroke-width="${FS * 0.08}" style="fill:var(--s${l.id})">STRAND ${l.id}</text>`;
+    out += `<text x="${l.x}" font-size="${FS}" stroke-width="${FS * 0.16}" style="fill:var(--s${l.id})">${l.lines.map((t, i) => `<tspan x="${l.x}" y="${top + FS * (0.85 + i * 1.05)}">${esc(t)}</tspan>`).join('')}</text>`;
+  }
+  sm.innerHTML = out;
+})();
+const nodeEls = {};
+const frag = document.createDocumentFragment();
+DATA.nodes.forEach(n => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'node'; b.dataset.id = n.id;
+  b.style.left = n.x + 'px'; b.style.top = n.y + 'px'; b.style.setProperty('--c', cvar(n.id));
+  b.title = n.s;
+  b.innerHTML = `<span class="nid">${n.id}</span><span class="nt">${esc(n.t)}</span>`;
+  nodeEls[n.id] = b; frag.appendChild(b);
+});
+nodesEl.appendChild(frag);
+$('pTotal').textContent = DATA.nodes.length;
+
+const isReady = id => !mastered.has(id) && byId[id].p.every(p => mastered.has(p));
+function paintStatus() {
+  DATA.nodes.forEach(n => {
+    const el = nodeEls[n.id], m = mastered.has(n.id);
+    el.classList.toggle('mastered', m);
+    el.classList.toggle('ready', isReady(n.id));
+    el.setAttribute('aria-pressed', m);
+    el.setAttribute('aria-label', `${n.id} ${n.t}${m ? ', mastered' : isReady(n.id) ? ', ready to learn' : ''}`);
+  });
+  edgeEls.forEach(e => e.el.classList.toggle('done', mastered.has(e.a) && mastered.has(e.b)));
+  $('pCount').textContent = mastered.size;
+  $('pBar').style.width = (100 * mastered.size / DATA.nodes.length) + '%';
+}
+function paintFocus() {
+  const id = hovered || selected;
+  let lit = null, up = null, down = null;
+  if (id) { up = new Set([id, ...anc[id]]); down = new Set([id, ...desc[id]]); lit = new Set([...up, ...down]); }
+  if (filter) lit = lit ? new Set([...lit].filter(x => filter.set.has(x)).concat(id ? [id] : [])) : filter.set;
+  world.classList.toggle('focus', !!lit);
+  DATA.nodes.forEach(n => { nodeEls[n.id].classList.toggle('lit', !!lit && lit.has(n.id)); nodeEls[n.id].classList.toggle('sel', n.id === selected); });
+  edgeEls.forEach(e => {
+    const u = !!up && up.has(e.a) && up.has(e.b), d = !!down && down.has(e.a) && down.has(e.b);
+    const f = !id && filter && filter.set.has(e.a) && filter.set.has(e.b);
+    e.el.classList.toggle('up', u || !!f);
+    e.el.classList.toggle('down', d && !u);
+  });
+  const fc = $('filterChip');
+  fc.hidden = !filter;
+  if (filter) $('filterText').textContent = filter.label;
+}
+
+/* ---------- pan & zoom ---------- */
+const map = $('map');
+let T = { x: 0, y: 0, k: 1 };
+const KMIN = 0.12, KMAX = 2.2;
+function apply(anim) {
+  world.classList.toggle('anim', !!anim);
+  world.style.transform = `translate(${T.x}px,${T.y}px) scale(${T.k})`;
+  world.classList.toggle('far', T.k < 0.5);
+  world.style.setProperty('--so', Math.max(0, Math.min(1, (0.5 - T.k) / 0.12)).toFixed(2));
+}
+function zoomAt(k, cx, cy, anim) {
+  k = Math.max(KMIN, Math.min(KMAX, k));
+  T.x = cx - (cx - T.x) * (k / T.k); T.y = cy - (cy - T.y) * (k / T.k); T.k = k; apply(anim);
+}
+function fit(anim) {
+  const r = map.getBoundingClientRect();
+  const k = Math.max(KMIN, Math.min(r.width / DATA.w, r.height / DATA.h) * 0.97);
+  T = { k, x: (r.width - DATA.w * k) / 2, y: Math.max(8, (r.height - DATA.h * k) / 2) }; apply(anim);
+}
+function centerOn(id, kMin = 0.85) {
+  const r = map.getBoundingClientRect(), n = byId[id];
+  const k = Math.max(T.k, kMin);
+  T = { k, x: r.width / 2 - n.x * k, y: r.height / 2 - n.y * k }; apply(true);
+}
+$('zin').onclick = () => { const r = map.getBoundingClientRect(); zoomAt(T.k * 1.35, r.width / 2, r.height / 2, true); };
+$('zout').onclick = () => { const r = map.getBoundingClientRect(); zoomAt(T.k / 1.35, r.width / 2, r.height / 2, true); };
+$('zfit').onclick = () => fit(true);
+map.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = map.getBoundingClientRect();
+  if (e.ctrlKey || e.metaKey) zoomAt(T.k * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top);
+  else { T.x -= e.deltaX; T.y -= e.deltaY; apply(); }
+}, { passive: false });
+
+const ptrs = new Map();
+let drag = null, pinch = null;
+map.addEventListener('pointerdown', e => {
+  if (e.target.closest('.mapctl,.filterchip,.banner')) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) drag = { x: e.clientX, y: e.clientY, tx: T.x, ty: T.y, moved: false, node: e.target.closest('.node') };
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: T.k }; if (drag) drag.moved = true;
+  }
+});
+map.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()], r = map.getBoundingClientRect();
+    zoomAt(pinch.k * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
+    return;
+  }
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.moved && Math.hypot(dx, dy) > 5) { drag.moved = true; map.classList.add('dragging'); try { map.setPointerCapture(e.pointerId); } catch (_) {} }
+  if (drag.moved) { T.x = drag.tx + dx; T.y = drag.ty + dy; apply(); }
+});
+function endPtr(e) {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId);
+  if (ptrs.size < 2) pinch = null;
+  if (ptrs.size === 0 && drag) {
+    const d = drag; drag = null; map.classList.remove('dragging');
+    if (!d.moved && e.type === 'pointerup') {
+      if (d.node) toggle(d.node.dataset.id, true);
+      else if (!e.target.closest('.mapctl,.filterchip,.banner')) { selected = null; view = 'overview'; render(); }
+    }
+  }
+}
+map.addEventListener('pointerup', endPtr);
+map.addEventListener('pointercancel', endPtr);
+nodesEl.addEventListener('pointerover', e => { const n = e.target.closest('.node'); if (n && e.pointerType === 'mouse' && !drag) { hovered = n.dataset.id; paintFocus(); } });
+nodesEl.addEventListener('pointerout', e => { const n = e.target.closest('.node'); if (n && hovered && !n.contains(e.relatedTarget)) { hovered = null; paintFocus(); } });
+// Keyboard activation (pointer clicks are handled above)
+nodesEl.addEventListener('keydown', e => {
+  const n = e.target.closest('.node');
+  if (n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(n.dataset.id, true); }
+});
+nodesEl.addEventListener('focusin', e => { const n = e.target.closest('.node'); if (n && n.matches(':focus-visible')) { const r = map.getBoundingClientRect(), b = n.getBoundingClientRect(); if (b.left < r.left || b.right > r.right || b.top < r.top || b.bottom > r.bottom) centerOn(n.dataset.id, T.k); } });
+
+/* ---------- actions ---------- */
+function toggle(id, fromMap) {
+  if (mastered.has(id)) mastered.delete(id); else mastered.add(id);
+  save(); selected = id; view = 'node';
+  const el = nodeEls[id]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  render(); openSheet();
+}
+function select(id) { selected = id; view = 'node'; hovered = null; render(); centerOn(id); openSheet(); }
+function setFilter(f) { filter = f; selected = null; render(); if (f && f.type !== 'search') fit(true); }
+$('filterClear').onclick = () => { filter = null; $('q').value = ''; $('qCount').textContent = ''; if (view !== 'node') view = 'overview'; render(); };
+
+/* ---------- panel ---------- */
+const pin = $('pin');
+const chip = id => { const n = byId[id]; return `<button type="button" class="chip${mastered.has(id) ? ' m' : ''}" data-go="${id}" style="--c:${cvar(id)}" title="${esc(n.s)}"><span class="d"></span><span class="cid">${id}</span><span class="ct">${esc(n.t)}</span></button>`; };
+const chips = (ids, empty) => ids.length ? `<div class="chips">${ids.map(chip).join('')}</div>` : `<p class="empty">${empty}</p>`;
+const order = ids => [...ids].sort((a, b) => DATA.nodes.indexOf(byId[a]) - DATA.nodes.indexOf(byId[b]));
+
+function viewNode(id) {
+  const n = byId[id], s = strandOf[n.st], m = mastered.has(id), all = order(anc[id]);
+  const missing = all.filter(x => !mastered.has(x));
+  const status = m ? `<span class="pill ok">Mastered</span>` : isReady(id) ? `<span class="pill ready">Ready to learn</span>` : `<span class="pill">${n.p.filter(p => !mastered.has(p)).length} of ${n.p.length} prerequisites to go</span>`;
+  const firstMs = DATA.milestones.findIndex(ms => ms.set.includes(id));
+  $('handleText').textContent = `${id} · ${n.t}`;
+  return `<button class="back" type="button" data-act="overview">← Overview</button>
+  <div style="display:flex;flex-direction:column;gap:10px;--c:${cvar(id)}">
+    <div class="eyebrow2"><span class="dot"></span>${id} · Strand ${s.id} · ${esc(s.name)}</div>
+    <h2>${esc(n.t)}</h2>
+    <p class="skill">${esc(n.s)}</p>
+    <div class="meta">${status}<span class="pill"><span class="pips">${EFFORT[n.e][0]}</span> ${EFFORT[n.e][1]}</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;--c:${cvar(id)}">
+    <button class="primary${m ? ' undo' : ''}" type="button" data-act="toggle" data-id="${id}">${m ? 'Unmark (it’s gone soft)' : 'Mark as mastered'}</button>
+    ${missing.length ? `<button class="secondary" type="button" data-act="markall" data-id="${id}">Mark ${m ? '' : 'it and '}all ${missing.length} unmastered prerequisite${missing.length > 1 ? 's' : ''} as mastered</button>` : ''}
+  </div>
+  ${n.note ? `<p class="note">${esc(n.note)}</p>` : ''}
+  <section><h3>Requires</h3>${chips(n.p, 'Nothing. This is a root of the tree.')}</section>
+  <section><h3>Unlocks</h3>${chips(kids[id], 'Nothing yet. This is a destination.')}</section>
+  <section><h3>Full lineage</h3><p class="empty">${all.length} skill${all.length === 1 ? '' : 's'} above it (${all.length - missing.length} mastered), ${desc[id].size} below it.${firstMs >= 0 ? ` First needed for milestone ${firstMs + 1}: ${esc(DATA.milestones[firstMs].name)}.` : ''}</p></section>`;
+}
+function viewOverview() {
+  $('handleText').textContent = `${mastered.size} of ${DATA.nodes.length} mastered`;
+  const ready = order(DATA.nodes.filter(n => isReady(n.id)).map(n => n.id));
+  const strands = DATA.strands.map(s => {
+    const all = DATA.nodes.filter(n => n.st === s.id), k = all.filter(n => mastered.has(n.id)).length;
+    const on = filter && filter.type === 'strand' && filter.key === s.id;
+    return `<button type="button" class="row${on ? ' on' : ''}" data-strand="${s.id}" style="--c:var(--s${s.id})"><span class="L">${s.id}</span><span class="nm"><div>${esc(s.name)}</div><div class="mini"><i style="width:${100 * k / all.length}%"></i></div></span><span class="n">${k}/${all.length}</span></button>`;
+  }).join('');
+  const ms = DATA.milestones.map((m, i) => {
+    const k = m.set.filter(x => mastered.has(x)).length, done = k === m.set.length;
+    const on = filter && filter.type === 'milestone' && filter.key === i;
+    return `<button type="button" class="row mrow${done ? ' done' : ''}${on ? ' on' : ''}" data-ms="${i}" style="--c:var(--accent)"><span class="L">${done ? '✓' : i + 1}</span><span class="nm"><div>${esc(m.name)}</div><div class="mini"><i style="width:${100 * k / m.set.length}%"></i></div></span><span class="n">${k}/${m.set.length}</span></button>`;
+  }).join('');
+  return `<div><h3>Progress</h3><div class="stat"><b>${mastered.size}</b><span>of ${DATA.nodes.length} skills mastered</span></div></div>
+  <section><h3>Ready to learn now</h3>${chips(ready.slice(0, 14), 'Everything is mastered. Time to start unmarking what has gone soft.')}${ready.length > 14 ? `<p class="empty" style="margin-top:6px">and ${ready.length - 14} more, shown with a coloured ring on the map.</p>` : ''}</section>
+  <section><h3>Milestones</h3><div class="rows">${ms}</div></section>
+  <section><h3>Strands</h3><div class="rows">${strands}</div></section>
+  <div class="foot">
+    <button class="secondary" type="button" data-act="about">How to read this graph, and what changed</button>
+    <button class="secondary" type="button" data-act="share">Copy progress link</button>
+    ${confirmReset ? `<div class="confirm">Clear all ${mastered.size} marks? This can’t be undone.<div><button type="button" class="danger" data-act="doreset">Clear marks</button><button type="button" data-act="cancelreset">Keep them</button></div></div>`
+      : `<button class="secondary" type="button" data-act="reset"${mastered.size ? '' : ' disabled'}>Reset progress</button>`}
+  </div>`;
+}
+function viewStrand(sid) {
+  const s = strandOf[sid], all = DATA.nodes.filter(n => n.st === sid).map(n => n.id);
+  $('handleText').textContent = `Strand ${sid} · ${s.name}`;
+  return `<button class="back" type="button" data-act="overview">← Overview</button>
+  <div style="display:flex;flex-direction:column;gap:10px;--c:var(--s${sid})"><div class="eyebrow2"><span class="dot"></span>Strand ${sid}</div><h2>${esc(s.name)}</h2><p class="skill">${esc(s.intro)}</p></div>
+  ${(s.more || []).map(([h, t]) => `<p class="note"><b>${esc(h)}.</b> ${esc(t)}</p>`).join('')}
+  <section><h3>Skills in this strand</h3>${chips(all, '')}</section>`;
+}
+function viewMilestone(i) {
+  const m = DATA.milestones[i], set = order(m.set), k = set.filter(x => mastered.has(x)).length;
+  const ready = set.filter(isReady);
+  $('handleText').textContent = `Milestone ${i + 1}`;
+  return `<button class="back" type="button" data-act="overview">← Overview</button>
+  <div style="display:flex;flex-direction:column;gap:10px;--c:var(--accent)"><div class="eyebrow2"><span class="dot"></span>Milestone ${i + 1}${m.when ? ' · ' + esc(m.when) : ''}</div><h2>${esc(m.name)}</h2>
+  <div class="stat"><b>${k}</b><span>of ${set.length} required skills mastered</span></div></div>
+  ${m.note ? `<p class="note">${esc(m.note)}</p>` : ''}
+  <section><h3>Adds</h3><p class="empty">${i ? 'Everything from the previous milestone, plus ' : ''}${esc(m.adds)}, with all their prerequisites.</p></section>
+  <section><h3>Ready to learn for this milestone</h3>${chips(ready, k === set.length ? 'All done. On to the next one.' : 'Nothing ready. Check the prerequisites above.')}</section>
+  <section><h3>Still to master</h3>${chips(set.filter(x => !mastered.has(x)), 'Nothing.')}</section>`;
+}
+function render() {
+  paintStatus(); paintFocus();
+  if (view === 'node' && selected) pin.innerHTML = viewNode(selected);
+  else if (view === 'strand' && filter) pin.innerHTML = viewStrand(filter.key);
+  else if (view === 'milestone' && filter) pin.innerHTML = viewMilestone(filter.key);
+  else { view = 'overview'; pin.innerHTML = viewOverview(); }
+}
+pin.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]'); if (go) return select(go.dataset.go);
+  const st = e.target.closest('[data-strand]');
+  if (st) { const sid = st.dataset.strand; view = 'strand'; return setFilter({ type: 'strand', key: sid, set: new Set(DATA.nodes.filter(n => n.st === sid).map(n => n.id)), label: `Strand ${sid} · ${strandOf[sid].name}` }); }
+  const ms = e.target.closest('[data-ms]');
+  if (ms) { const i = +ms.dataset.ms; view = 'milestone'; return setFilter({ type: 'milestone', key: i, set: new Set(DATA.milestones[i].set), label: `Milestone ${i + 1} · ${DATA.milestones[i].name}` }); }
+  const act = e.target.closest('[data-act]'); if (!act) return;
+  const a = act.dataset.act, id = act.dataset.id;
+  if (a === 'overview') { view = 'overview'; selected = null; if (filter && filter.type !== 'search') filter = null; render(); }
+  else if (a === 'toggle') toggle(id);
+  else if (a === 'markall') { mastered.add(id); anc[id].forEach(x => mastered.add(x)); save(); render(); toast(`Marked ${id} and its prerequisites`); }
+  else if (a === 'about') openAbout();
+  else if (a === 'share') share();
+  else if (a === 'reset') { confirmReset = true; render(); }
+  else if (a === 'cancelreset') { confirmReset = false; render(); }
+  else if (a === 'doreset') { confirmReset = false; mastered.clear(); save(); render(); toast('Progress cleared'); }
+});
+
+/* ---------- mobile sheet ---------- */
+const panel = $('panel');
+function openSheet() { panel.classList.remove('collapsed'); $('handle').setAttribute('aria-expanded', 'true'); $('handleIcon').textContent = 'Hide'; }
+$('handle').onclick = () => { const c = panel.classList.toggle('collapsed'); $('handle').setAttribute('aria-expanded', String(!c)); $('handleIcon').textContent = c ? 'Show' : 'Hide'; };
+
+/* ---------- search ---------- */
+const norm = s => s.normalize('NFD').replace(/[̀-ͯͅ]/g, '').toLowerCase();
+const searchIdx = DATA.nodes.map(n => [n.id, norm(`${n.id} ${n.t} ${n.s}`)]);
+let hits = [], hitI = 0;
+$('q').addEventListener('input', e => {
+  const q = norm(e.target.value.trim());
+  if (!q) { hits = []; $('qCount').textContent = ''; if (filter && filter.type === 'search') { filter = null; render(); } return; }
+  const exact = byId[e.target.value.trim().toUpperCase()];
+  hits = exact ? [exact.id] : searchIdx.filter(([, t]) => q.split(/\s+/).every(w => t.includes(w))).map(([id]) => id);
+  hitI = 0; $('qCount').textContent = hits.length ? hits.length : 'none';
+  filter = { type: 'search', set: new Set(hits), label: `${hits.length} match${hits.length === 1 ? '' : 'es'} for “${e.target.value.trim()}”` };
+  paintFocus();
+});
+$('q').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && hits.length) { select(hits[hitI % hits.length]); hitI++; }
+  if (e.key === 'Escape') { e.target.value = ''; e.target.dispatchEvent(new Event('input')); }
+});
+
+/* ---------- about, share, keys ---------- */
+function openAbout() { $('about').hidden = false; $('aboutClose').focus(); }
+$('aboutBtn').onclick = openAbout;
+$('aboutClose').onclick = () => { $('about').hidden = true; };
+$('about').addEventListener('click', e => { if (e.target.id === 'about') $('about').hidden = true; });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (!$('about').hidden) { $('about').hidden = true; return; }
+    if (document.activeElement === $('q')) return;
+    selected = null; filter = null; view = 'overview'; render();
+  }
+  if (e.target.matches('input')) return;
+  const r = map.getBoundingClientRect();
+  if (e.key === '+' || e.key === '=') zoomAt(T.k * 1.35, r.width / 2, r.height / 2, true);
+  if (e.key === '-') zoomAt(T.k / 1.35, r.width / 2, r.height / 2, true);
+  if (e.key === '0') fit(true);
+  if (e.key === '/') { e.preventDefault(); $('q').focus(); }
+});
+let toastT;
+function toast(msg) {
+  let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200);
+}
+// Progress travels in a bare #anchor: "m" + base64url bitset over node order
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+function encode(set) {
+  let s = 'm';
+  for (let i = 0; i < DATA.nodes.length; i += 6) { let v = 0; for (let j = 0; j < 6; j++) if (set.has(DATA.nodes[i + j]?.id)) v |= 1 << j; s += B64[v]; }
+  return s.replace(/A+$/, '');
+}
+function decode(h) {
+  const out = new Set(); h = h.slice(1);
+  for (let c = 0; c < h.length; c++) { const v = B64.indexOf(h[c]); if (v < 0) return null; for (let j = 0; j < 6; j++) if (v & (1 << j) && DATA.nodes[c * 6 + j]) out.add(DATA.nodes[c * 6 + j].id); }
+  return out;
+}
+function share() {
+  const url = location.href.split('#')[0] + '#' + encode(mastered);
+  const done = () => toast('Progress link copied');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, () => fallback(url)); else fallback(url);
+}
+function fallback(url) {
+  const b = $('shareBanner'); b.hidden = false;
+  b.innerHTML = `<span>Copy this link:</span><input id="shareUrl" value="${esc(url)}" readonly style="min-width:0;flex:1;font:13px var(--f-mono);padding:4px 6px;border-radius:6px;border:0"><button type="button" class="ghost" id="shareClose">Done</button>`;
+  $('shareUrl').select(); $('shareClose').onclick = () => b.hidden = true;
+}
+(function readHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!/^m[A-Za-z0-9_-]*$/.test(h)) return;
+  const got = decode(h); if (!got) return;
+  const same = got.size === mastered.size && [...got].every(x => mastered.has(x));
+  if (same) return;
+  if (!mastered.size) { mastered = got; save(); return; }
+  const b = $('shareBanner'); b.hidden = false;
+  b.innerHTML = `<span>This link carries ${got.size} mastered skill${got.size === 1 ? '' : 's'}. You have ${mastered.size} saved here.</span><button type="button" id="hLoad">Use the link’s</button><button type="button" class="ghost" id="hKeep">Keep mine</button>`;
+  $('hLoad').onclick = () => { mastered = got; save(); b.hidden = true; render(); };
+  $('hKeep').onclick = () => { b.hidden = true; };
+})();
+
+render();
+fit(false);
+let rz, lastW = map.clientWidth; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (Math.abs(map.clientWidth - lastW) > 40) { lastW = map.clientWidth; fit(false); } }, 150); });
+})();
+</script>
+
+</body></html>
